@@ -5,7 +5,7 @@ from datetime import datetime
 TEMPLATES = [
     {
         "title": "INSANE Goals This Week Will Leave You Speechless!",
-        "description": "From 30-yard rockets to bicycle kicks -- we've compiled the most INSANE goals from around the world. Premier League, La Liga, Serie A, Bundesliga and more!\n\nSUBSCRIBE for daily football content!\nLIKE if you enjoyed the video!\nCOMMENT your favorite goal!\n\n#football #soccer #goals #highlights #premierleague #laliga #seriea #bundesliga #championsleague #footballhighlights #topgoals #sports",
+        "description": "From 30-yard rockets to bicycle kicks -- we've compiled the most INSANE goals from around the world. Premier League, La Liga, Serie A, Bundesliga and more!\n\nSUBSCRIBE for daily football content!\nLIKE if you enjoyed the video!\nCOMMENT your favorite goal!\n\n#football #soccer #goals #premierleague #laliga #seriea #bundesliga #championsleague #footballhighlights #worldcup2026 #footballnews #sports",
         "tags": ["football", "soccer", "goals", "premierleague", "laliga", "seriea", "bundesliga", "championsleague", "footballhighlights", "worldcup2026", "footballnews", "sports"],
     },
     {
@@ -70,7 +70,7 @@ TEMPLATES = [
     },
     {
         "title": "The GREATEST Underdog Story in Football",
-        "description": "This is the most inspiring football story you'll hear all year. How a team written off by everyone defied impossible odds to achieve greatness.\n\nSUBSCRIBE for incredible stories!\nLIKE to support underdogs!\n\n#underdog #footballstory #inspiration #soccer #football #comeback #sportsstory #inspiring #motivation #football",
+        "description": "This is the most inspiring football story you'll hear all year. How a team written off by everyone defied impossible odds to achieve greatness.\n\nSUBSCRIBE for incredible stories!\nLIKE to support underdogs!\n\n#underdog #footballstory #inspiration #soccer #football #comeback #sportsstory #inspiring #motivation #nevergiveup",
         "tags": ["underdog", "footballstory", "inspiration", "soccer", "football", "comeback", "sportsstory", "inspiring", "motivation", "nevergiveup"],
     },
     {
@@ -83,28 +83,23 @@ TEMPLATES = [
 
 _EMOJI = re.compile(
     "["
-    "\U0001F600-\U0001F64F"  # emoticons
-    "\U0001F300-\U0001F5FF"  # symbols & pictographs
-    "\U0001F680-\U0001F6FF"  # transport
-    "\U0001F1E0-\U0001F1FF"  # flags
+    "\U0001F600-\U0001F64F"
+    "\U0001F300-\U0001F5FF"
+    "\U0001F680-\U0001F6FF"
+    "\U0001F1E0-\U0001F1FF"
     "\U00002702-\U000027B0"
     "\U000024C2-\U0001F251"
     "\U0001f926-\U0001f937"
     "\U00010000-\U0010ffff"
     "\u2600-\u27BF"
-    "\u2B50"
-    "\u200d"
-    "\u23cf"
-    "\u23e9"
-    "\u231a"
-    "\ufe0f"
-    "\u3030"
-    "]+", re.UNICODE
+    "\u2B50\u200d\u23cf\u23e9\u231a\ufe0f\u3030"
+    "]+",
+    re.UNICODE,
 )
 
 
 def clean_text(text):
-    return _EMOJI.sub('', text).strip()
+    return _EMOJI.sub("", text).strip()
 
 
 def generate_script(match_text, stories):
@@ -132,16 +127,16 @@ def generate_script(match_text, stories):
                 body_parts.append(f"{i}. {s_clean}")
 
     outros = [
-        "\nWhat do you think about today's news? Drop your thoughts in the comments below! Don't forget to subscribe and hit that bell icon for daily football updates!",
-        "\nWhich story caught your attention the most? Let us know in the comments! Subscribe now so you never miss another video!",
-        "\nThanks for watching! If you enjoyed this update, smash that like button and subscribe for more football content every day!",
+        "What do you think about today's news? Drop your thoughts in the comments below! Don't forget to subscribe and hit that bell icon for daily football updates!",
+        "Which story caught your attention the most? Let us know in the comments! Subscribe now so you never miss another video!",
+        "Thanks for watching! If you enjoyed this update, smash that like button and subscribe for more football content every day!",
     ]
 
     body_parts.append(random.choice(outros))
 
     script = "\n\n".join(body_parts)
     script = clean_text(script)
-    script = re.sub(r'\s+', ' ', script).strip()
+    script = re.sub(r"\s+", " ", script).strip()
 
     return {
         "title": template["title"],
