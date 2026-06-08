@@ -10,7 +10,7 @@ class Config:
     YOUTUBE_REFRESH_TOKEN = os.getenv("YOUTUBE_REFRESH_TOKEN", "")
 
     CHANNEL_NAME = os.getenv("CHANNEL_NAME", "Futboll Highlights")
-    UPLOAD_SCHEDULE_HOURS = int(os.getenv("UPLOAD_SCHEDULE_HOURS", "6"))
+    UPLOAD_SCHEDULE_HOURS = int(os.getenv("UPLOAD_SCHEDULE_HOURS") or "6")
 
     OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
 
