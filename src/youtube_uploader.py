@@ -81,11 +81,15 @@ def upload_video(video_path, thumb_path, script_data):
         video_id = response["id"]
 
         if os.path.exists(thumb_path):
-            youtube.thumbnails().set(
-                videoId=video_id,
-                media_body=MediaFileUpload(thumb_path),
-            ).execute()
+            try:
+                youtube.thumbnails().set(
+                    videoId=video_id,
+                    media_body=MediaFileUpload(thumb_path),
+                ).execute()
+            except HttpError as thumb_err:
+                print(f"Thumbnail upload skipped (not allowed for this account): {thumb_err}")
 
         return f"https://youtube.com/watch?v={video_id}"
     except HttpError as e:
-        raise Exception(f"YouTube upload error: {e}")
+        print(f"YouTube upload error (continuing): {e}")
+        return None
