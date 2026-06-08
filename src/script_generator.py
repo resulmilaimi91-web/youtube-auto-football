@@ -2,41 +2,55 @@ import random
 import re
 from datetime import datetime
 
+MONETIZATION_TAGS = [
+    "football", "soccer", "worldcup2026", "fifa",
+    "premierleague", "laliga", "seriea", "bundesliga",
+    "championsleague", "footballhighlights", "footballnews",
+    "goals", "highlights", "sports", "football2026",
+]
+
 TEMPLATES = [
     {
-        "title": "FIFA WORLD CUP 2026: Everything You Need To Know!",
-        "description": "The biggest sporting event on Earth is almost here! Get the complete guide to the FIFA World Cup 2026 including host cities, schedule, teams, and what to expect.\n\nSUBSCRIBE for daily World Cup updates!\nLIKE if you are excited for the World Cup!\n\n#worldcup2026 #fifa #worldcup #football #soccer #fifaworldcup #2026worldcup #canada #mexico #usa #footballnews #sports",
-        "tags": ["worldcup2026", "fifa", "worldcup", "football", "soccer", "fifaworldcup", "2026worldcup", "canada", "mexico", "usa", "footballnews", "sports"],
+        "title": "FIFA WORLD CUP 2026: Complete Guide To The Biggest Event!",
+        "description": "The FIFA World Cup 2026 is coming to USA, Canada, and Mexico! Here is everything you need to know about the biggest sporting event on Earth.\n\nSUBSCRIBE for daily World Cup updates!\nLIKE to support the channel!\nCOMMENT your favorite team!\n\n#worldcup2026 #fifa #worldcup #football #soccer #fifaworldcup #2026worldcup #canada #mexico #usa #footballnews #sports #worldcuphighlights #footballhighlights",
+        "tags": ["worldcup2026", "fifa", "worldcup", "football", "soccer", "fifaworldcup", "2026worldcup", "canada", "mexico", "usa", "footballnews", "sports", "worldcuphighlights", "footballhighlights"],
+        "hashtags": ["worldcup2026", "fifa", "worldcup", "football", "soccer"],
     },
     {
-        "title": "World Cup 2026 Host Cities: Complete Stadium Tour!",
-        "description": "Take a tour of all 16 host cities across USA, Canada, and Mexico for the 2026 FIFA World Cup. Which stadiums are ready and what fans can expect.\n\nSUBSCRIBE for more World Cup content!\n\n#worldcup2026 #fifa #worldcup #stadiums #canada #mexico #usa #soccer #football #worldcuppreview",
-        "tags": ["worldcup2026", "fifa", "worldcup", "stadiums", "canada", "mexico", "usa", "soccer", "football", "worldcuppreview"],
+        "title": "World Cup 2026 Host Cities: Full Stadium Tour!",
+        "description": "Take a complete tour of all 16 host cities for the 2026 FIFA World Cup. From MetLife Stadium to Estadio Azteca, which venue is the best?\n\nSUBSCRIBE for more World Cup content!\nLIKE for the stadiums!\n\n#worldcup2026 #stadiums #fifa #worldcup #canada #mexico #usa #soccer #football #worldcupstadiums #worldcuppreview",
+        "tags": ["worldcup2026", "stadiums", "fifa", "worldcup", "canada", "mexico", "usa", "soccer", "football", "worldcupstadiums", "worldcuppreview"],
+        "hashtags": ["worldcup2026", "stadiums", "fifa", "worldcup", "football"],
     },
     {
-        "title": "World Cup 2026 Qualifiers: Who Has Qualified So Far?",
-        "description": "Tracking every team that has secured their spot in the 2026 FIFA World Cup. Updated list of qualified nations and the remaining qualification battles.\n\nSUBSCRIBE to stay updated!\n\n#worldcup2026 #qualifiers #fifa #worldcup #football #soccer #worldcupqualifiers #internationalfootball",
+        "title": "World Cup 2026: Every Team That Has Qualified!",
+        "description": "Updated list of all teams that have qualified for the 2026 FIFA World Cup. Who is in, who is out, and who still has a chance?\n\nSUBSCRIBE to stay updated!\nLIKE to support your team!\n\n#worldcup2026 #qualifiers #fifa #worldcup #football #soccer #worldcupqualifiers #internationalfootball #qualification",
         "tags": ["worldcup2026", "qualifiers", "fifa", "worldcup", "football", "soccer", "worldcupqualifiers", "internationalfootball"],
+        "hashtags": ["worldcup2026", "qualifiers", "fifa", "worldcup", "football"],
     },
     {
-        "title": "World Cup 2026 Format Changes: What's New?",
-        "description": "The 2026 World Cup introduces a new 48-team format. We explain how it works, the new group stage structure, and what it means for fans and players.\n\nSUBSCRIBE for World Cup news!\n\n#worldcup2026 #fifa #worldcup #format #48teams #soccer #football #worldcupnews #sports",
-        "tags": ["worldcup2026", "fifa", "worldcup", "format", "48teams", "soccer", "football", "worldcupnews", "sports"],
+        "title": "World Cup 2026: New 48-Team Format Explained!",
+        "description": "The 2026 World Cup features 48 teams for the first time ever. We break down the new format, group stages, and how it affects every team.\n\nSUBSCRIBE for World Cup news!\nLIKE for the format explainer!\n\n#worldcup2026 #fifa #worldcup #format #48teams #soccer #football #worldcupnews #newformat #tournament",
+        "tags": ["worldcup2026", "fifa", "worldcup", "format", "48teams", "soccer", "football", "worldcupnews", "newformat", "tournament"],
+        "hashtags": ["worldcup2026", "format", "fifa", "worldcup", "football"],
     },
     {
-        "title": "Stars Set To Shine At World Cup 2026!",
-        "description": "The biggest names in football preparing for the 2026 World Cup. From Messi to Mbappe, who will dominate the tournament?\n\nSUBSCRIBE for daily football updates!\n\n#worldcup2026 #fifa #worldcup #messi #mbappe #ronaldo #football #soccer #footballstars #worldcupstars",
-        "tags": ["worldcup2026", "fifa", "worldcup", "messi", "mbappe", "ronaldo", "football", "soccer", "footballstars", "worldcupstars"],
+        "title": "Top 10 Players Who Will Dominate World Cup 2026!",
+        "description": "From Mbappe to Haaland, Bellingham to Vinicius, these are the players who will light up the 2026 FIFA World Cup. Who is your pick?\n\nSUBSCRIBE for daily football content!\nLIKE for the top players!\n\n#worldcup2026 #fifa #worldcup #mbappe #haaland #bellingham #football #soccer #footballstars #worldcupstars #worldclass",
+        "tags": ["worldcup2026", "fifa", "worldcup", "mbappe", "haaland", "bellingham", "football", "soccer", "footballstars", "worldcupstars"],
+        "hashtags": ["worldcup2026", "football", "mbappe", "fifa", "worldcup"],
     },
     {
-        "title": "World Cup 2026 Favorites: Who Will Lift The Trophy?",
-        "description": "Expert predictions for the 2026 FIFA World Cup. We analyze the top contenders, dark horses, and make our case for who will be crowned champions.\n\nSUBSCRIBE for predictions and analysis!\n\n#worldcup2026 #fifa #worldcup #predictions #favorites #soccer #football #worldcuppredictions #champions",
+        "title": "World Cup 2026: Who Will Win The Trophy?",
+        "description": "Expert predictions for the 2026 FIFA World Cup. We analyze the favorites, dark horses, and make our case for who will lift the trophy.\n\nSUBSCRIBE for predictions and analysis!\nLIKE for your favorite team!\n\n#worldcup2026 #fifa #worldcup #predictions #favorites #soccer #football #worldcuppredictions #champions #winner",
         "tags": ["worldcup2026", "fifa", "worldcup", "predictions", "favorites", "soccer", "football", "worldcuppredictions", "champions"],
+        "hashtags": ["worldcup2026", "predictions", "fifa", "worldcup", "football"],
     },
     {
-        "title": "Today's Football News Roundup + World Cup 2026 Updates",
-        "description": "The latest football news from around the globe including World Cup 2026 preparations, transfer updates, and match results.\n\nSUBSCRIBE so you never miss a video!\n\n#footballnews #worldcup2026 #soccer #football #premierleague #laliga #seriea #bundesliga #championsleague #dailysports",
-        "tags": ["footballnews", "worldcup2026", "soccer", "football", "premierleague", "laliga", "seriea", "bundesliga", "championsleague", "dailysports"],
+        "title": "Today's Football News + World Cup 2026 Updates!",
+        "description": "The latest football news from around the globe including World Cup 2026 preparations, transfer updates, and match results.\n\nSUBSCRIBE so you never miss a video!\nLIKE to help the channel grow!\n\n#footballnews #worldcup2026 #soccer #football #premierleague #laliga #seriea #bundesliga #championsleague #dailysports #footballhighlights",
+        "tags": ["footballnews", "worldcup2026", "soccer", "football", "premierleague", "laliga", "seriea", "bundesliga", "championsleague", "dailysports", "footballhighlights"],
+        "hashtags": ["footballnews", "worldcup2026", "football", "soccer", "highlights"],
     },
 ]
 
@@ -67,9 +81,10 @@ def generate_script(match_text, stories):
     date_str = datetime.now().strftime("%B %d, %Y")
 
     intros = [
-        "Welcome to Football Highlights Daily! Today is {date} and we have massive World Cup 2026 news to share.",
+        "Welcome back to Football Highlights Daily! Today is {date} and we have massive World Cup 2026 news to share.",
         "Hey football fans! It's {date} and the World Cup 2026 excitement is building! Here's what you need to know.",
         "Hello everyone! {date} here and we are bringing you the latest from the FIFA World Cup 2026 and beyond.",
+        "What's going on football fans! {date} and we are here with your daily dose of World Cup 2026 updates.",
     ]
 
     body_parts = [random.choice(intros).format(date=date_str)]
@@ -86,9 +101,9 @@ def generate_script(match_text, stories):
                 body_parts.append(f"{i}. {s_clean}")
 
     outros = [
-        "What do you think about the World Cup 2026? Which team are you supporting? Let us know in the comments! Subscribe for daily updates!",
+        "What do you think about the World Cup 2026? Which team are you supporting? Let us know in the comments! Subscribe and hit the bell for daily updates!",
         "The World Cup is going to be incredible! Drop your predictions in the comments and subscribe so you don't miss any of our World Cup coverage!",
-        "Thanks for watching! Like and subscribe for daily football and World Cup 2026 content. See you in the next video!",
+        "Thanks for watching! Like, subscribe, and hit the bell for daily football and World Cup 2026 content. See you in the next video!",
     ]
 
     body_parts.append(random.choice(outros))
@@ -101,5 +116,6 @@ def generate_script(match_text, stories):
         "title": template["title"],
         "description": template["description"],
         "tags": template["tags"],
+        "hashtags": template["hashtags"],
         "script": script,
     }

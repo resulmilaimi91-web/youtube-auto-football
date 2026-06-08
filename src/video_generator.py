@@ -4,7 +4,6 @@ import random
 import traceback
 import sys
 import urllib.request
-import json
 
 from moviepy import (
     VideoFileClip, ColorClip, TextClip, AudioFileClip,
@@ -13,6 +12,7 @@ from moviepy import (
 )
 from PIL import Image, ImageDraw, ImageFont
 from src.config import Config
+from src.tv_assets import create_tv_intro, create_tv_outro, create_watermark, create_logo
 
 
 def _get_font(size):
@@ -20,7 +20,6 @@ def _get_font(size):
         "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
         "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
         "/usr/share/fonts/truetype/freefont/FreeSansBold.ttf",
-        "/usr/share/fonts/truetype/freefont/FreeSans.ttf",
         "arial.ttf", "Arial.ttf", "Arial Bold.ttf",
     ]
     for path in fonts:
@@ -77,9 +76,9 @@ def download_football_images(count=5):
     queries = [
         "football+stadium+night",
         "soccer+players+action",
-        "world+cup+trophy",
+        "world+cup+trophy+gold",
         "football+fans+celebration",
-        "soccer+goal+net",
+        "soccer+goal+net+ball",
     ]
     for i in range(min(count, len(queries))):
         path = os.path.join(Config.OUTPUT_DIR, f"scene_{i}.jpg")
@@ -94,17 +93,15 @@ def download_football_images(count=5):
 def _make_gradient_bg(W, H, style=0):
     img = Image.new("RGB", (W, H))
     draw = ImageDraw.Draw(img)
-    if style == 0:
-        c1, c2, c3 = (10, 15, 35), (20, 40, 80), (5, 10, 25)
-    elif style == 1:
-        c1, c2, c3 = (25, 10, 10), (60, 15, 15), (15, 5, 5)
-    elif style == 2:
-        c1, c2, c3 = (10, 25, 10), (15, 60, 15), (5, 15, 5)
-    elif style == 3:
-        c1, c2, c3 = (20, 15, 30), (40, 20, 60), (10, 8, 15)
-    else:
-        c1, c2, c3 = (15, 20, 30), (30, 45, 70), (8, 12, 20)
-
+    colors = [
+        ((10, 15, 35), (20, 40, 80)),
+        ((25, 10, 10), (60, 15, 15)),
+        ((10, 25, 10), (15, 60, 15)),
+        ((20, 15, 30), (40, 20, 60)),
+        ((15, 20, 30), (30, 45, 70)),
+        ((0, 30, 60), (0, 60, 120)),
+    ]
+    c1, c2 = colors[style % len(colors)]
     for y in range(H):
         r = int(c1[0] + (c2[0] - c1[0]) * y / H)
         g = int(c1[1] + (c2[1] - c1[1]) * y / H)
@@ -113,7 +110,7 @@ def _make_gradient_bg(W, H, style=0):
     return img
 
 
-STYLES = ["classic", "breaking", "sports", "worldcup", "analysis"]
+STYLES = ["classic", "breaking", "sports", "worldcup", "analysis", "news", "premium"]
 
 
 def create_thumbnail(title, output_path, style=None):
@@ -129,25 +126,35 @@ def create_thumbnail(title, output_path, style=None):
     od = ImageDraw.Draw(overlay)
 
     if style == "breaking":
-        od.rectangle([0, 0, W, 80], fill=(255, 0, 0, 230))
-        od.rectangle([0, H - 80, W, H], fill=(255, 0, 0, 230))
+        od.rectangle([0, 0, W, 90], fill=(255, 0, 0, 240))
+        od.rectangle([0, H - 70, W, H], fill=(0, 0, 0, 200))
     elif style == "sports":
-        od.rectangle([0, H - 120, W, H], fill=(0, 0, 0, 200))
-        od.rectangle([0, 0, 120, H], fill=(255, 200, 0, 100))
+        od.rectangle([0, H - 100, W, H], fill=(0, 0, 0, 200))
+        od.rectangle([0, 0, 10, H], fill=(255, 200, 0, 200))
     elif style == "worldcup":
-        od.rectangle([0, H - 100, W, H], fill=(0, 50, 120, 220))
-        od.rectangle([0, 0, W, 80], fill=(0, 50, 120, 220))
+        od.rectangle([0, 0, W, 80], fill=(0, 50, 120, 230))
+        od.rectangle([0, H - 80, W, H], fill=(0, 50, 120, 230))
     elif style == "analysis":
-        od.rectangle([0, 0, W, 60], fill=(20, 20, 20, 200))
-        od.rectangle([0, H - 60, W, H], fill=(20, 20, 20, 200))
+        od.rectangle([0, 0, W, 60], fill=(20, 20, 20, 220))
+        od.rectangle([0, H - 50, W, H], fill=(20, 20, 20, 220))
+    elif style == "news":
+        od.rectangle([0, 0, W, 100], fill=(200, 30, 30, 240))
+        od.rectangle([0, H - 60, W, H], fill=(0, 0, 0, 220))
+    elif style == "premium":
+        od.rectangle([0, 0, W, 70], fill=(30, 30, 30, 220))
+        od.rectangle([0, H - 70, W, H], fill=(30, 30, 30, 220))
+        for i in range(3):
+            od.line([(0, 70 + i), (W, 70 + i)], fill=(255, 215, 0, 150))
+            od.line([(0, H - 73 + i), (W, H - 73 + i)], fill=(255, 215, 0, 150))
     else:
-        od.rectangle([0, 400, W, H], fill=(0, 0, 0, 180))
+        od.rectangle([0, 380, W, H], fill=(0, 0, 0, 180))
 
     bg = Image.alpha_composite(bg.convert("RGBA"), overlay).convert("RGB")
     draw = ImageDraw.Draw(bg)
 
-    font = _get_font(56)
-    small_font = _get_font(28)
+    font = _get_font(54)
+    small_font = _get_font(26)
+    logo_font = _get_font(20)
 
     lines = textwrap.wrap(title, width=18)
     y = 140
@@ -157,28 +164,47 @@ def create_thumbnail(title, output_path, style=None):
         x = (W - tw) // 2
         draw.text((x + 2, y + 2), line, fill=(0, 0, 0), font=font)
         draw.text((x, y), line, fill=(255, 255, 255), font=font)
-        y += 70
+        y += 68
 
     if style == "breaking":
-        draw.rectangle([0, 0, W, 80], fill=(255, 0, 0))
-        draw.text((W // 2 - 100, 20), "BREAKING NEWS", fill=(255, 255, 255), font=_get_font(36))
-        draw.rectangle([0, H - 80, W, H], fill=(255, 0, 0))
-        draw.text((W // 2 - 80, H - 60), "SUBSCRIBE NOW", fill=(255, 255, 255), font=small_font)
+        draw.rectangle([0, 0, W, 90], fill=(255, 0, 0))
+        draw.text((W // 2 - 120, 28), "BREAKING NEWS", fill=(255, 255, 255), font=_get_font(38))
+        draw.rectangle([0, H - 70, W, H], fill=(0, 0, 0))
+        draw.text((W // 2 - 100, H - 50), "SUBSCRIBE NOW", fill=(255, 255, 255), font=small_font)
     elif style == "worldcup":
         draw.rectangle([0, 0, W, 80], fill=(0, 50, 120))
-        draw.text((W // 2 - 120, 20), "FIFA WORLD CUP 2026", fill=(255, 215, 0), font=_get_font(32))
-        draw.rectangle([0, H - 100, W, H], fill=(0, 50, 120))
-        draw.text((W // 2 - 80, H - 60), "SUBSCRIBE NOW", fill=(255, 255, 255), font=small_font)
-    elif style == "analysis":
-        draw.rectangle([0, 0, W, 60], fill=(30, 30, 30))
-        draw.text((40, 15), "ANALYSIS", fill=(255, 200, 0), font=_get_font(30))
-        draw.rectangle([0, H - 60, W, H], fill=(30, 30, 30))
+        draw.text((W // 2 - 140, 20), "FIFA WORLD CUP 2026", fill=(255, 215, 0), font=_get_font(34))
+        draw.rectangle([0, H - 80, W, H], fill=(0, 50, 120))
+        draw.text((W // 2 - 80, H - 55), "SUBSCRIBE NOW", fill=(255, 255, 255), font=small_font)
+    elif style == "news":
+        draw.rectangle([0, 0, W, 100], fill=(200, 30, 30))
+        draw.text((40, 30), "LIVE", fill=(255, 255, 255), font=_get_font(40))
+        draw.text((W // 2 - 100, 35), "FOOTBALL NEWS", fill=(255, 255, 255), font=_get_font(32))
+        draw.rectangle([0, H - 60, W, H], fill=(0, 0, 0))
         draw.text((W // 2 - 80, H - 45), "SUBSCRIBE NOW", fill=(255, 255, 255), font=small_font)
+    elif style == "premium":
+        draw.rectangle([0, 0, W, 70], fill=(30, 30, 30))
+        draw.text((40, 18), "FHD", fill=(255, 215, 0), font=_get_font(30))
+        draw.text((100, 22), "PREMIUM", fill=(255, 255, 255), font=small_font)
+        draw.rectangle([0, H - 70, W, H], fill=(30, 30, 30))
+        draw.text((W // 2 - 80, H - 50), "SUBSCRIBE NOW", fill=(255, 255, 255), font=small_font)
     else:
         badge = Image.new("RGBA", (240, 50), (255, 0, 0, 255))
         bg.paste(badge, (W // 2 - 120, H - 90), badge)
         b_draw = ImageDraw.Draw(bg)
         b_draw.text((W // 2 - 85, H - 82), "SUBSCRIBE", fill=(255, 255, 255), font=small_font)
+
+    logo_path = os.path.join(Config.OUTPUT_DIR, "logo.png")
+    if not os.path.exists(logo_path):
+        create_logo(logo_path)
+    try:
+        logo = Image.open(logo_path).resize((60, 60))
+        bg.paste(logo, (W - 80, 10), logo)
+    except Exception:
+        pass
+
+    draw2 = ImageDraw.Draw(bg)
+    draw2.text((W - 180, 80), "FHD", fill=(255, 255, 255, 150), font=logo_font)
 
     bg.save(output_path, quality=92)
     return output_path
@@ -187,6 +213,9 @@ def create_thumbnail(title, output_path, style=None):
 def create_video(script_data, output_path, style=None):
     VOICE_PATH = os.path.join(Config.OUTPUT_DIR, "voiceover.mp3")
     THUMB_PATH = os.path.join(Config.OUTPUT_DIR, "thumbnail.jpg")
+    INTRO_PATH = os.path.join(Config.OUTPUT_DIR, "intro.mp4")
+    OUTRO_PATH = os.path.join(Config.OUTPUT_DIR, "outro.mp4")
+    WATERMARK_PATH = os.path.join(Config.OUTPUT_DIR, "watermark.png")
     BG_PATH = os.path.join(Config.ASSETS_DIR, "background.mp4")
     MUSIC_PATH = os.path.join(Config.ASSETS_DIR, "music.mp3")
 
@@ -199,14 +228,20 @@ def create_video(script_data, output_path, style=None):
     create_thumbnail(script_data["title"], THUMB_PATH, style)
 
     audio = AudioFileClip(VOICE_PATH)
-    duration = audio.duration + 3
+    main_duration = audio.duration + 3
 
     W, H = Config.VIDEO_WIDTH, Config.VIDEO_HEIGHT
+
+    print("  Generating intro...")
+    intro_clip = VideoFileClip(create_tv_intro(INTRO_PATH, duration=4))
+
+    print("  Generating outro...")
+    outro_clip = VideoFileClip(create_tv_outro(OUTRO_PATH, duration=3))
 
     img_paths = download_football_images(5)
     scenes = []
     if img_paths:
-        seg_dur = duration / len(img_paths)
+        seg_dur = main_duration / len(img_paths)
         for i, p in enumerate(img_paths):
             try:
                 clip = ImageClip(p, duration=seg_dur).resized((W, H))
@@ -217,13 +252,13 @@ def create_video(script_data, output_path, style=None):
                 pass
 
     if not scenes:
-        bg_clip = ColorClip(size=(W, H), color=(10, 15, 30), duration=duration)
+        bg_clip = ColorClip(size=(W, H), color=(10, 15, 30), duration=main_duration)
         scenes = [bg_clip]
 
     try:
-        bg_video = concatenate_videoclips(scenes, method="compose")
+        main_video = concatenate_videoclips(scenes, method="compose")
     except Exception:
-        bg_video = scenes[0].with_duration(duration)
+        main_video = scenes[0].with_duration(main_duration)
 
     font_path = None
     for f in ["/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
@@ -238,84 +273,97 @@ def create_video(script_data, output_path, style=None):
     overlays = []
 
     if style == "breaking":
-        bar = ColorClip(size=(W, 70), color=(255, 0, 0), duration=duration).with_position((0, 0))
-        bar_text = TextClip(text="BREAKING NEWS", font_size=32, color="white", font=font_path).with_position(("center", 18)).with_duration(duration)
-        bottom_bar = ColorClip(size=(W, 60), color=(0, 0, 0), duration=duration).with_position((0, H - 60)).with_effects([afx.MultiplyVolume(0)])
-        bottom_text = TextClip(text="SUBSCRIBE FOR MORE NEWS", font_size=26, color="white", font=font_path).with_position(("center", H - 48)).with_duration(duration)
-        overlays.extend([bar, bar_text, bottom_bar, bottom_text])
+        top = ColorClip(size=(W, 70), color=(255, 0, 0), duration=main_duration).with_position((0, 0))
+        top_text = TextClip(text="BREAKING NEWS", font_size=32, color="white", font=font_path).with_position(("center", 18)).with_duration(main_duration)
+        bottom = ColorClip(size=(W, 50), color=(0, 0, 0), duration=main_duration).with_position((0, H - 50))
+        bottom_text = TextClip(text="SUBSCRIBE FOR MORE NEWS", font_size=22, color="white", font=font_path).with_position(("center", H - 40)).with_duration(main_duration)
+        overlays.extend([top, top_text, bottom, bottom_text])
     elif style == "worldcup":
-        top_bar = ColorClip(size=(W, 70), color=(0, 50, 120), duration=duration).with_position((0, 0))
-        top_text = TextClip(text="FIFA WORLD CUP 2026", font_size=32, color=(255, 215, 0), font=font_path).with_position(("center", 18)).with_duration(duration)
-        bottom_bar = ColorClip(size=(W, 50), color=(0, 50, 120), duration=duration).with_position((0, H - 50)).with_effects([afx.MultiplyVolume(0)])
-        bottom_text = TextClip(text="SUBSCRIBE NOW", font_size=24, color="white", font=font_path).with_position(("center", H - 40)).with_duration(duration)
-        overlays.extend([top_bar, top_text, bottom_bar, bottom_text])
+        top = ColorClip(size=(W, 70), color=(0, 50, 120), duration=main_duration).with_position((0, 0))
+        top_text = TextClip(text="FIFA WORLD CUP 2026", font_size=30, color=(255, 215, 0), font=font_path).with_position(("center", 18)).with_duration(main_duration)
+        bottom = ColorClip(size=(W, 50), color=(0, 50, 120), duration=main_duration).with_position((0, H - 50))
+        bottom_text = TextClip(text="SUBSCRIBE NOW", font_size=22, color="white", font=font_path).with_position(("center", H - 40)).with_duration(main_duration)
+        overlays.extend([top, top_text, bottom, bottom_text])
     elif style == "sports":
-        side_bar = ColorClip(size=(8, H), color=(255, 200, 0), duration=duration).with_position((0, 0))
-        bottom_bar = ColorClip(size=(W, 50), color=(0, 0, 0), duration=duration).with_position((0, H - 50)).with_effects([afx.MultiplyVolume(0)])
-        bottom_text = TextClip(text="FOOTBALL HIGHLIGHTS DAILY", font_size=24, color="white", font=font_path).with_position(("center", H - 40)).with_duration(duration)
-        overlays.extend([side_bar, bottom_bar, bottom_text])
+        side = ColorClip(size=(8, H), color=(255, 200, 0), duration=main_duration).with_position((0, 0))
+        bottom = ColorClip(size=(W, 50), color=(0, 0, 0), duration=main_duration).with_position((0, H - 50))
+        bottom_text = TextClip(text="FOOTBALL HIGHLIGHTS DAILY", font_size=22, color="white", font=font_path).with_position(("center", H - 40)).with_duration(main_duration)
+        overlays.extend([side, bottom, bottom_text])
     elif style == "analysis":
-        top_bar = ColorClip(size=(W, 50), color=(20, 20, 20), duration=duration).with_position((0, 0))
-        top_text = TextClip(text="TACTICAL ANALYSIS", font_size=28, color=(255, 200, 0), font=font_path).with_position((30, 10)).with_duration(duration)
-        bottom_bar = ColorClip(size=(W, 40), color=(20, 20, 20), duration=duration).with_position((0, H - 40)).with_effects([afx.MultiplyVolume(0)])
-        overlays.extend([top_bar, top_text, bottom_bar])
+        top = ColorClip(size=(W, 50), color=(20, 20, 20), duration=main_duration).with_position((0, 0))
+        top_text = TextClip(text="TACTICAL ANALYSIS", font_size=26, color=(255, 200, 0), font=font_path).with_position((30, 10)).with_duration(main_duration)
+        bottom = ColorClip(size=(W, 40), color=(20, 20, 20), duration=main_duration).with_position((0, H - 40))
+        overlays.extend([top, top_text, bottom])
+    elif style == "news":
+        top = ColorClip(size=(W, 80), color=(200, 30, 30), duration=main_duration).with_position((0, 0))
+        top_text = TextClip(text="LIVE", font_size=30, color="white", font=font_path).with_position((40, 22)).with_duration(main_duration)
+        top_text2 = TextClip(text="FOOTBALL NEWS", font_size=28, color="white", font=font_path).with_position(("center", 22)).with_duration(main_duration)
+        bottom = ColorClip(size=(W, 50), color=(0, 0, 0), duration=main_duration).with_position((0, H - 50))
+        bottom_text = TextClip(text="SUBSCRIBE FOR DAILY UPDATES", font_size=22, color="white", font=font_path).with_position(("center", H - 40)).with_duration(main_duration)
+        overlays.extend([top, top_text, top_text2, bottom, bottom_text])
+    elif style == "premium":
+        top = ColorClip(size=(W, 60), color=(30, 30, 30), duration=main_duration).with_position((0, 0))
+        top_text = TextClip(text="FHD PREMIUM", font_size=26, color=(255, 215, 0), font=font_path).with_position((40, 15)).with_duration(main_duration)
+        bottom = ColorClip(size=(W, 50), color=(30, 30, 30), duration=main_duration).with_position((0, H - 50))
+        bottom_text = TextClip(text="SUBSCRIBE NOW", font_size=22, color="white", font=font_path).with_position(("center", H - 40)).with_duration(main_duration)
+        gold_line1 = ColorClip(size=(W, 2), color=(255, 215, 0), duration=main_duration).with_position((0, 60))
+        gold_line2 = ColorClip(size=(W, 2), color=(255, 215, 0), duration=main_duration).with_position((0, H - 52))
+        overlays.extend([top, top_text, bottom, bottom_text, gold_line1, gold_line2])
     else:
-        ticker = ColorClip(size=(W, 40), color=(255, 0, 0), duration=duration).with_position((0, H - 40)).with_effects([afx.MultiplyVolume(0)])
-        ticker_text = TextClip(text="FOOTBALL HIGHLIGHTS DAILY - SUBSCRIBE!", font_size=20, color="white", font=font_path).with_position(("center", H - 32)).with_duration(duration)
+        ticker = ColorClip(size=(W, 40), color=(255, 0, 0), duration=main_duration).with_position((0, H - 40))
+        ticker_text = TextClip(text="FOOTBALL HIGHLIGHTS DAILY - SUBSCRIBE!", font_size=20, color="white", font=font_path).with_position(("center", H - 32)).with_duration(main_duration)
         overlays.extend([ticker, ticker_text])
 
-    title_clip = TextClip(
-        text=script_data["title"],
-        font_size=Config.TITLE_FONT_SIZE,
-        color="white",
-        font=font_path,
-        text_align="center",
-        size=(W - 200, None),
-        method="caption",
-    ).with_position(("center", int(H * 0.35))).with_duration(duration)
+    title_shadow = TextClip(
+        text=script_data["title"], font_size=Config.TITLE_FONT_SIZE,
+        color=(0, 0, 0), font=font_path, text_align="center",
+        size=(W - 200, None), method="caption",
+    ).with_position(("center", int(H * 0.35) + 3)).with_duration(main_duration).with_opacity(0.5)
 
-    shadow = TextClip(
-        text=script_data["title"],
-        font_size=Config.TITLE_FONT_SIZE,
-        color=(0, 0, 0),
-        font=font_path,
-        text_align="center",
-        size=(W - 200, None),
-        method="caption",
-    ).with_position(("center", int(H * 0.35) + 3)).with_duration(duration).with_opacity(0.5)
+    title_clip = TextClip(
+        text=script_data["title"], font_size=Config.TITLE_FONT_SIZE,
+        color="white", font=font_path, text_align="center",
+        size=(W - 200, None), method="caption",
+    ).with_position(("center", int(H * 0.35))).with_duration(main_duration)
 
     subscribe = TextClip(
-        text="SUBSCRIBE",
-        font_size=32,
-        color=(255, 215, 0),
-        font=font_path,
-    ).with_position(("center", int(H * 0.82))).with_duration(duration)
+        text="SUBSCRIBE", font_size=30,
+        color=(255, 215, 0), font=font_path,
+    ).with_position(("center", int(H * 0.82))).with_duration(main_duration)
+
+    watermark_path = os.path.join(Config.OUTPUT_DIR, "watermark.png")
+    if not os.path.exists(watermark_path):
+        create_watermark(watermark_path)
+    try:
+        wm = ImageClip(watermark_path, duration=main_duration).with_position((20, 20)).with_opacity(0.7)
+        overlays.append(wm)
+    except Exception:
+        pass
 
     if os.path.exists(MUSIC_PATH):
-        music = AudioFileClip(MUSIC_PATH).with_duration(duration).with_effects([afx.MultiplyVolume(0.08)])
+        music = AudioFileClip(MUSIC_PATH).with_duration(main_duration).with_effects([afx.MultiplyVolume(0.08)])
         final_audio = CompositeAudioClip([audio, music])
     else:
         final_audio = audio
 
-    all_clips = [bg_video, shadow, title_clip, subscribe] + overlays
-    video = CompositeVideoClip(all_clips).with_audio(final_audio)
+    all_clips = [main_video, title_shadow, title_clip, subscribe] + overlays
+    main_part = CompositeVideoClip(all_clips).with_audio(final_audio)
 
-    video.write_videofile(
-        output_path,
-        fps=Config.FPS,
-        codec="libx264",
-        audio_codec="aac",
-        preset="ultrafast",
-        threads=2,
-        ffmpeg_params=["-crf", "26"],
+    final_parts = [intro_clip, main_part, outro_clip]
+    final_video = concatenate_videoclips(final_parts, method="compose")
+
+    final_video.write_videofile(
+        output_path, fps=Config.FPS, codec="libx264", audio_codec="aac",
+        preset="ultrafast", threads=2, ffmpeg_params=["-crf", "24"],
     )
 
-    video.close()
+    final_video.close()
     audio.close()
     for p in img_paths:
         if os.path.exists(p):
             os.remove(p)
-    if os.path.exists(VOICE_PATH):
-        os.remove(VOICE_PATH)
+    for p in [VOICE_PATH, INTRO_PATH, OUTRO_PATH]:
+        if os.path.exists(p):
+            os.remove(p)
 
     return output_path, THUMB_PATH

@@ -1,100 +1,78 @@
-# YouTube Auto Football - 24/7 Automated Channel
+# Football Highlights Daily - TV Channel on YouTube
 
-An automated system that generates football/soccer videos and uploads them to YouTube every 6 hours — completely hands-free.
+Professional automated TV channel covering FIFA World Cup 2026 and global football.
 
-## How It Works
+## What This Does
 
-1. **Fetches data** from TheSportsDB and BBC Sport for latest matches and news
-2. **Generates script** automatically in English with professional templates
-3. **Creates video** with voiceover (TTS), captions, subtitles, and background
-4. **Uploads to YouTube** automatically via API
-5. **Repeats every 6 hours** 24/7 through GitHub Actions
+- Generates **TV-quality videos** (1920x1080 desktop format)
+- Fetches **World Cup 2026 news** from BBC Sport, ESPN, Sky Sports, Goal.com
+- Creates **professional intros/outros** like a TV broadcast
+- Adds **watermarks, news tickers, animated overlays**
+- Uploads to YouTube **every 6 hours** automatically
+- Uses **natural voice** (Microsoft Edge TTS + Google TTS fallback)
 
 ## Features
 
-- Fully automated — zero manual work
-- Professional English voiceover (Microsoft Edge TTS / Google TTS)
-- Custom thumbnails generated automatically
-- Multiple video templates (news, goals, analysis)
-- Runs 24/7 on GitHub Actions (free tier)
-- Easy to customize and extend
+- 7 video styles: Breaking, Sports, World Cup, Analysis, News, Premium, Classic
+- Professional thumbnail with gradient, logo, and overlays
+- Intro/outro sequence like a TV channel
+- Animated news ticker at bottom
+- Watermark/logo in corner
+- Title with shadow effect for depth
+- Fade transitions between scenes
+- Downloaded football images from Unsplash
 
-## Setup
+## Setup for Monetization
 
-### 1. YouTube API Setup
+### Requirements for YouTube Partner Program:
+- **1,000 subscribers**
+- **4,000 watch hours** in the past 12 months
+- Content that follows YouTube policies
 
-1. Go to [Google Cloud Console](https://console.cloud.google.com/)
-2. Create a new project
-3. Enable **YouTube Data API v3**
-4. Create **OAuth 2.0 Credentials** (Desktop app type)
-5. Note down your Client ID, Client Secret, and generate a refresh token
+### How to reach monetization fast:
+1. **Post consistently** - 4 videos per day (every 6 hours)
+2. **Optimize titles** - Use trending keywords (World Cup 2026, FIFA, football)
+3. **Engaging thumbnails** - Our TV-style thumbnails stand out
+4. **Longer videos** - 3-5 minutes for more watch time
+5. **SEO descriptions** - Our descriptions include relevant hashtags
+6. **Call to action** - Every video asks viewers to subscribe
+7. **Cross-promote** - Share on social media, football forums
 
-### 2. GitHub Configuration
+## Hashtag Strategy
 
-Fork this repository and add these **repository secrets** (Settings → Secrets → Actions):
+Each video uses 12-15 hashtags optimized for discoverability:
+- Primary: #worldcup2026 #fifa #football #soccer
+- League: #premierleague #laliga #seriea #bundesliga
+- Event: #championsleague #worldcuphighlights
+- Trending: #footballnews #highlights #sports
 
-| Secret | Description |
-|--------|-------------|
-| `YOUTUBE_API_KEY` | Your YouTube API key |
-| `YOUTUBE_CLIENT_ID` | OAuth Client ID |
-| `YOUTUBE_CLIENT_SECRET` | OAuth Client Secret |
-| `YOUTUBE_REFRESH_TOKEN` | OAuth refresh token |
-| `CHANNEL_NAME` | Your channel name (optional) |
-| `UPLOAD_SCHEDULE_HOURS` | Upload frequency in hours (default: 6) |
+## Video Styles
 
-### 3. Generate Refresh Token
-
-Run locally:
-```bash
-pip install -r requirements.txt
-python -c "from src.youtube_uploader import get_authenticated_service; get_authenticated_service()"
-```
-
-This will open a browser for Google authentication. The refresh token will be saved to `output/token.pickle`.
-
-> **Important**: Extract and add the refresh token as a GitHub secret:
-> ```bash
-> python -c "import pickle; data = pickle.load(open('output/token.pickle','rb')); print(data.refresh_token)"
-> ```
-
-### 4. Enable GitHub Actions
-
-Once secrets are configured, the workflow triggers automatically:
-- On every push to `main`
-- On schedule (every 6 hours by default)
-- Manually via Actions → "Run workflow"
+1. **Breaking** - Red banner, urgent news style
+2. **Sports** - Gold accent, action-oriented
+3. **World Cup** - Blue/gold FIFA colors
+4. **Analysis** - Dark, tactical breakdown
+5. **News** - TV news broadcast style
+6. **Premium** - Gold borders, high-end feel
+7. **Classic** - Clean, professional look
 
 ## Project Structure
 
 ```
 youtube-auto-football/
-├── .github/workflows/    # GitHub Actions automation
+├── .github/workflows/    # GitHub Actions (every 6 hours)
 ├── src/
-│   ├── config.py         # Configuration & environment
-│   ├── football_data.py  # Football data fetching
-│   ├── script_generator.py # Script & template engine
-│   ├── video_generator.py  # Video & thumbnail creation
-│   ├── youtube_uploader.py # YouTube API uploader
-│   └── main.py           # Main pipeline (orchestrator)
-├── assets/               # Background videos, music
+│   ├── config.py         # Configuration
+│   ├── football_data.py  # Fetches news from portals
+│   ├── script_generator.py # 7 TV-style templates
+│   ├── video_generator.py  # Professional video creation
+│   ├── tv_assets.py      # Intro/outro/watermark/logo
+│   ├── youtube_uploader.py # YouTube API upload
+│   └── main.py           # Main pipeline
+├── assets/               # Background music, videos
 ├── requirements.txt
 └── README.md
 ```
-
-## Customization
-
-- **Video templates**: Edit `src/script_generator.py`
-- **Upload frequency**: Change `cron` in `.github/workflows/auto-upload.yml`
-- **Video style**: Edit `src/video_generator.py` (colors, fonts, layout)
-- **Better scripts**: Add `OPENAI_API_KEY` to your secrets for AI-generated content
-
-## Monetization Tips
-
-- **Post consistently** — daily uploads grow your audience faster
-- **Optimize thumbnails** — use bright colors, bold text, and action shots
-- **Target keywords** — "football highlights", "soccer news", "premier league goals"
-- **Enable monetization** after reaching 1000 subscribers / 4000 watch hours
-- **Add affiliate links** — sports betting, merchandise, streaming services
 
 ## License
 

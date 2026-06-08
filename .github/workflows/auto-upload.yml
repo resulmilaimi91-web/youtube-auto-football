@@ -1,4 +1,4 @@
-name: YouTube Auto Upload 24/7
+name: YouTube Auto Football TV 24/7
 
 on:
   schedule:
@@ -28,14 +28,12 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Download background assets
+      - name: Generate TV intro/outro assets
         run: |
-          mkdir -p assets
-          if [ ! -f assets/background.mp4 ]; then
-            ffmpeg -f lavfi -i color=c=#141e30:s=1080x1920:d=30 -c:v libx264 -pix_fmt yuv420p assets/background.mp4
-          fi
+          mkdir -p assets output
+          python -c "from src.tv_assets import create_tv_intro, create_tv_outro, create_watermark, create_logo; create_tv_intro('output/intro.mp4', 4); create_tv_outro('output/outro.mp4', 3); create_watermark('output/watermark.png'); create_logo('output/logo.png'); print('TV assets generated!')"
 
-      - name: Generate & Upload Video
+      - name: Generate & Upload TV Video
         env:
           YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
           YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
