@@ -1,7 +1,7 @@
 import os
 import pickle
-import json
 from google.auth.transport.requests import Request
+from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload
@@ -10,30 +10,42 @@ from src.config import Config
 
 SCOPES = ["https://www.googleapis.com/auth/youtube.upload", "https://www.googleapis.com/auth/youtube"]
 
+def _make_client_config():
+    return {
+        "installed": {
+            "client_id": Config.YOUTUBE_CLIENT_ID,
+            "client_secret": Config.YOUTUBE_CLIENT_SECRET,
+            "redirect_uris": ["http://localhost"],
+            "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+            "token_uri": "https://oauth2.googleapis.com/token",
+        }
+    }
+
 def get_authenticated_service():
     creds = None
     token_path = os.path.join(Config.OUTPUT_DIR, "token.pickle")
-
     os.makedirs(os.path.dirname(token_path), exist_ok=True)
 
     if os.path.exists(token_path):
         with open(token_path, "rb") as f:
             creds = pickle.load(f)
 
+    if creds and creds.expired and creds.refresh_token:
+        creds.refresh(Request())
+
     if not creds or not creds.valid:
-        if creds and creds.expired and creds.refresh_token:
+        if Config.YOUTUBE_REFRESH_TOKEN:
+            creds = Credentials(
+                token=None,
+                refresh_token=Config.YOUTUBE_REFRESH_TOKEN,
+                token_uri="https://oauth2.googleapis.com/token",
+                client_id=Config.YOUTUBE_CLIENT_ID,
+                client_secret=Config.YOUTUBE_CLIENT_SECRET,
+                scopes=SCOPES,
+            )
             creds.refresh(Request())
         else:
-            client_secret = {
-                "installed": {
-                    "client_id": Config.YOUTUBE_CLIENT_ID,
-                    "client_secret": Config.YOUTUBE_CLIENT_SECRET,
-                    "redirect_uris": ["http://localhost"],
-                    "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-                    "token_uri": "https://oauth2.googleapis.com/token",
-                }
-            }
-            flow = InstalledAppFlow.from_client_config(client_secret, SCOPES)
+            flow = InstalledAppFlow.from_client_config(_make_client_config(), SCOPES)
             creds = flow.run_local_server(port=8080, prompt="consent")
 
         with open(token_path, "wb") as f:
