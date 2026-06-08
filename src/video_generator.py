@@ -101,20 +101,33 @@ def create_video(script_data, output_path):
 
     overlay = TextClip(
         text=script_data["title"],
-        font_size=50,
+        font_size=Config.TITLE_FONT_SIZE,
         color="white",
         font=font_path,
         text_align="center",
-        size=(Config.VIDEO_WIDTH - 80, None),
+        size=(Config.VIDEO_WIDTH - 60, None),
         method="caption",
     ).with_position("center").with_duration(duration)
 
+    sub_text = "Daily Football Updates"
+    sub = TextClip(
+        text=sub_text,
+        font_size=Config.SUBTITLE_FONT_SIZE,
+        color="#FFD700",
+        font=font_path,
+        text_align="center",
+        size=(Config.VIDEO_WIDTH - 60, None),
+        method="caption",
+    ).with_position(("center", Config.VIDEO_HEIGHT * 0.12)).with_duration(duration)
+
     footer = TextClip(
         text="SUBSCRIBE",
-        font_size=40,
+        font_size=Config.FOOTER_FONT_SIZE,
         color="yellow",
         font=font_path,
-    ).with_position(("center", Config.VIDEO_HEIGHT - 120)).with_duration(duration)
+    ).with_position(("center", Config.VIDEO_HEIGHT - 80)).with_duration(duration)
+
+    video = CompositeVideoClip([bg, overlay, sub, footer]).with_audio(final_audio)
 
     if os.path.exists(MUSIC_PATH):
         music = AudioFileClip(MUSIC_PATH).with_duration(duration).with_effects([afx.MultiplyVolume(0.1)])
