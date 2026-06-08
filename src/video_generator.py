@@ -61,7 +61,7 @@ def create_video(script_data, output_path):
 
     os.makedirs(Config.OUTPUT_DIR, exist_ok=True)
 
-    asyncio.run(generate_voiceover(script_data["script"], VOICE_PATH))
+    generate_voiceover(script_data["script"], VOICE_PATH)
 
     create_thumbnail(script_data["title"], THUMB_PATH)
 
