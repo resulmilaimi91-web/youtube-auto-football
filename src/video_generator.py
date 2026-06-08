@@ -127,15 +127,13 @@ def create_video(script_data, output_path):
         font=font_path,
     ).with_position(("center", Config.VIDEO_HEIGHT - 80)).with_duration(duration)
 
-    video = CompositeVideoClip([bg, overlay, sub, footer]).with_audio(final_audio)
-
     if os.path.exists(MUSIC_PATH):
         music = AudioFileClip(MUSIC_PATH).with_duration(duration).with_effects([afx.MultiplyVolume(0.1)])
         final_audio = CompositeAudioClip([audio, music])
     else:
         final_audio = audio
 
-    video = CompositeVideoClip([bg, overlay, footer]).with_audio(final_audio)
+    video = CompositeVideoClip([bg, overlay, sub, footer]).with_audio(final_audio)
 
     video.write_videofile(
         output_path,
