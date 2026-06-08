@@ -30,40 +30,70 @@ def _get_font(size):
 def generate_voiceover(script_text, output_path):
     try:
         import edge_tts
+        import asyncio
 
-        voice = random.choice(["en-US-GuyNeural", "en-US-JennyNeural", "en-GB-RyanNeural"])
+        voices = ["en-US-GuyNeural", "en-US-JennyNeural", "en-GB-RyanNeural", "en-AU-WilliamNeural"]
+        voice = random.choice(voices)
+
         async def _run():
-            tts = edge_tts.Communicate(script_text, voice=voice, rate="+5%")
+            tts = edge_tts.Communicate(script_text, voice=voice, rate="+5%", pitch="-2Hz")
             await tts.save(output_path)
 
-        import asyncio
         asyncio.run(_run())
         if os.path.getsize(output_path) > 1000:
             return
-    except Exception:
-        traceback.print_exc()
+    except Exception as e:
+        print(f"edge-tts failed ({e}), falling back to gTTS...")
 
-    from gtts import gTTS
-    tts = gTTS(text=script_text, lang="en", slow=False)
-    tts.save(output_path)
+    try:
+        from gtts import gTTS
+        tts = gTTS(text=script_text, lang="en", slow=False, tld="com")
+        tts.save(output_path)
+        if os.path.getsize(output_path) > 1000:
+            return
+    except Exception as e2:
+        print(f"gTTS failed too ({e2}), continuing without voice...")
+        with open(output_path, "wb") as f:
+            f.write(b"")
 
 
 def create_thumbnail(title, output_path):
-    img = Image.new("RGB", (1280, 720), (20, 30, 48))
+    W, H = 1280, 720
+    img = Image.new("RGB", (W, H), (20, 30, 48))
     draw = ImageDraw.Draw(img)
-    font = _get_font(60)
-    small_font = _get_font(30)
 
-    draw.rectangle([0, 500, 1280, 720], fill=(255, 200, 0))
+    for y in range(H):
+        r = int(20 + (235 - 20) * y / H)
+        g = int(30 + (200 - 30) * y / H)
+        b = int(48 + (0 - 48) * y / H)
+        draw.line([(0, y), (W, y)], fill=(r, g, b))
 
-    lines = textwrap.wrap(title, width=15)
-    y = 150
+    overlay = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    o_draw = ImageDraw.Draw(overlay)
+    o_draw.rectangle([0, 460, W, H], fill=(0, 0, 0, 180))
+    img = Image.alpha_composite(img.convert("RGBA"), overlay).convert("RGB")
+    draw = ImageDraw.Draw(img)
+
+    font = _get_font(58)
+    small_font = _get_font(32)
+
+    lines = textwrap.wrap(title, width=14)
+    y = 140
     for line in lines[:3]:
-        draw.text((40, y), line, fill=(255, 255, 255), font=font)
-        y += 70
+        draw.text((50, y), line, fill=(255, 255, 255), font=font)
+        y += 68
 
-    draw.text((40, 530), "SUBSCRIBE!", fill=(0, 0, 0), font=small_font)
-    img.save(output_path, quality=95)
+    accent = Image.new("RGBA", (8, y - 140), (255, 200, 0, 230))
+    img.paste(accent, (20, 140), accent)
+
+    draw.rectangle([(20, 485), (W - 20, 485)], fill=(255, 200, 0))
+
+    badge = Image.new("RGBA", (220, 50), (255, 200, 0, 255))
+    img.paste(badge, (W // 2 - 110, H - 100), badge)
+    b_draw = ImageDraw.Draw(img)
+    b_draw.text((W // 2 - 75, H - 92), "SUBSCRIBE", fill=(0, 0, 0), font=small_font)
+
+    img.save(output_path, quality=92)
     return output_path
 
 
@@ -127,13 +157,26 @@ def create_video(script_data, output_path):
         font=font_path,
     ).with_position(("center", Config.VIDEO_HEIGHT - 80)).with_duration(duration)
 
+    bar_bg = ColorClip(
+        size=(Config.VIDEO_WIDTH, 70),
+        color=(255, 0, 0),
+        duration=duration,
+    ).with_position(("center", Config.VIDEO_HEIGHT - 70)).with_effects([afx.MultiplyVolume(0)]).with_opacity(0.0)
+
+    bar_text = TextClip(
+        text="SUBSCRIBE NOW",
+        font_size=Config.FOOTER_FONT_SIZE,
+        color="white",
+        font=font_path,
+    ).with_position(("center", Config.VIDEO_HEIGHT - 62)).with_duration(duration)
+
     if os.path.exists(MUSIC_PATH):
         music = AudioFileClip(MUSIC_PATH).with_duration(duration).with_effects([afx.MultiplyVolume(0.1)])
         final_audio = CompositeAudioClip([audio, music])
     else:
         final_audio = audio
 
-    video = CompositeVideoClip([bg, overlay, sub, footer]).with_audio(final_audio)
+    video = CompositeVideoClip([bg, overlay, sub, footer, bar_text]).with_audio(final_audio)
 
     video.write_videofile(
         output_path,
