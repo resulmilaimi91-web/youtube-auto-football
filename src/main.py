@@ -5,7 +5,12 @@ from datetime import datetime
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
 from src.config import Config
-from src.football_data import get_todays_matches, get_top_stories, format_match_text
+from src.football_data import (
+    get_todays_matches,
+    get_world_cup_2026_news,
+    format_match_text,
+    download_football_images,
+)
 from src.script_generator import generate_script
 from src.video_generator import create_video
 from src.youtube_uploader import upload_video
@@ -16,17 +21,19 @@ def run():
 
     os.makedirs(Config.OUTPUT_DIR, exist_ok=True)
 
-    print("[1/4] Fetching football data...")
+    print("[1/4] Fetching World Cup 2026 & football news...")
     matches = get_todays_matches()
-    stories = get_top_stories()
+    wc_news = get_world_cup_2026_news()
     match_text = format_match_text(matches)
-    print(f"  Found {len(matches)} matches, {len(stories)} stories")
+
+    all_stories = wc_news
+    print(f"  Found {len(matches)} matches, {len(wc_news)} World Cup stories")
 
     print("[2/4] Generating script...")
-    script_data = generate_script(match_text, stories)
+    script_data = generate_script(match_text, all_stories)
     print(f"  Title: {script_data['title']}")
 
-    print("[3/4] Creating video...")
+    print("[3/4] Creating desktop video (1920x1080)...")
     video_path = os.path.join(Config.OUTPUT_DIR, "video.mp4")
     video_path, thumb_path = create_video(script_data, video_path)
     print(f"  Video: {video_path}")

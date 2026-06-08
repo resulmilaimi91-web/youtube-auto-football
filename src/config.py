@@ -18,9 +18,8 @@ class Config:
     OUTPUT_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "output")
     ASSETS_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "assets")
 
-    VIDEO_WIDTH = 1080
-    VIDEO_HEIGHT = 1920
-    TITLE_FONT_SIZE = 64
-    SUBTITLE_FONT_SIZE = 44
-    FOOTER_FONT_SIZE = 38
-    FPS = 24
+    VIDEO_WIDTH = 1920
+    VIDEO_HEIGHT = 1080
+    TITLE_FONT_SIZE = 72
+    SUBTITLE_FONT_SIZE = 48
+    FOOTER_FONT_SIZE = 36
