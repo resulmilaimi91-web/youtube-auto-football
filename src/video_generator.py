@@ -1,8 +1,8 @@
 import os
-import asyncio
 import textwrap
 import random
 import traceback
+import sys
 
 from moviepy import (
     VideoFileClip, ColorClip, TextClip, AudioFileClip,
@@ -28,19 +28,27 @@ def generate_voiceover(script_text, output_path):
     tts = gTTS(text=script_text, lang="sq", slow=False)
     tts.save(output_path)
 
+def _get_font(size):
+    fonts = [
+        "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+        "/usr/share/fonts/truetype/freefont/FreeSans.ttf",
+        "arial.ttf",
+        "Arial.ttf",
+    ]
+    for path in fonts:
+        try:
+            return ImageFont.truetype(path, size)
+        except:
+            pass
+    return ImageFont.load_default()
+
 def create_thumbnail(title, output_path):
     img = Image.new("RGB", (1280, 720), (20, 30, 48))
-
     draw = ImageDraw.Draw(img)
-    try:
-        font = ImageFont.truetype("arial.ttf", 60)
-        small_font = ImageFont.truetype("arial.ttf", 30)
-    except:
-        font = ImageFont.load_default()
-        small_font = ImageFont.load_default()
+    font = _get_font(60)
+    small_font = _get_font(30)
 
     draw.rectangle([0, 500, 1280, 720], fill=(255, 200, 0))
-    draw.text((40, 40), "⚽", fill=(255, 255, 255), font=font)
 
     lines = textwrap.wrap(title, width=15)
     y = 150
@@ -49,7 +57,6 @@ def create_thumbnail(title, output_path):
         y += 70
 
     draw.text((40, 530), "ABONOHU!", fill=(0, 0, 0), font=small_font)
-
     img.save(output_path, quality=95)
     return output_path
 
@@ -77,21 +84,29 @@ def create_video(script_data, output_path):
             duration=duration,
         )
 
+    font_path = None
+    for f in ["/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", "arial.ttf", "Arial.ttf"]:
+        if os.path.exists(f):
+            font_path = f
+            break
+    if not font_path and sys.platform == "linux":
+        font_path = "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"
+
     overlay = TextClip(
         text=script_data["title"],
         font_size=50,
         color="white",
-        font="Arial",
+        font=font_path,
         text_align="center",
         size=(Config.VIDEO_WIDTH - 80, None),
         method="caption",
     ).with_position("center").with_duration(duration)
 
     footer = TextClip(
-        text="ABONOHU 🔔",
+        text="ABONOHU",
         font_size=40,
         color="yellow",
-        font="Arial",
+        font=font_path,
     ).with_position(("center", Config.VIDEO_HEIGHT - 120)).with_duration(duration)
 
     if os.path.exists(MUSIC_PATH):
