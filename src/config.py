@@ -23,3 +23,4 @@ class Config:
     TITLE_FONT_SIZE = 72
     SUBTITLE_FONT_SIZE = 48
     FOOTER_FONT_SIZE = 36
+    FPS = 24
