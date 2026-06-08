@@ -1,5 +1,6 @@
 import os
 import sys
+import random
 from datetime import datetime
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
@@ -9,10 +10,9 @@ from src.football_data import (
     get_todays_matches,
     get_world_cup_2026_news,
     format_match_text,
-    download_football_images,
 )
 from src.script_generator import generate_script
-from src.video_generator import create_video
+from src.video_generator import create_video, STYLES
 from src.youtube_uploader import upload_video
 
 
@@ -33,9 +33,12 @@ def run():
     script_data = generate_script(match_text, all_stories)
     print(f"  Title: {script_data['title']}")
 
-    print("[3/4] Creating desktop video (1920x1080)...")
+    style = random.choice(STYLES)
+    print(f"  Style: {style}")
+
+    print("[3/4] Creating professional video...")
     video_path = os.path.join(Config.OUTPUT_DIR, "video.mp4")
-    video_path, thumb_path = create_video(script_data, video_path)
+    video_path, thumb_path = create_video(script_data, video_path, style=style)
     print(f"  Video: {video_path}")
 
     print("[4/4] Uploading to YouTube...")
