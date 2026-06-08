@@ -1,21 +1,32 @@
 import os
-import edge_tts
+import asyncio
+import textwrap
+import random
+import traceback
+
 from moviepy import (
     VideoFileClip, ColorClip, TextClip, AudioFileClip,
     CompositeVideoClip, CompositeAudioClip, afx
 )
 from PIL import Image, ImageDraw, ImageFont
-import numpy as np
 from src.config import Config
-import asyncio
-import textwrap
-import random
 
-async def generate_voiceover(script_text, output_path):
-    voice = random.choice(["sq-AL-IlirNeural", "sq-AL-AnilaNeural"])
-    tts = edge_tts.Communicate(script_text, voice=voice, rate="+10%")
-    await tts.save(output_path)
-    return output_path
+def generate_voiceover(script_text, output_path):
+    try:
+        import edge_tts
+        voice = random.choice(["sq-AL-IlirNeural", "sq-AL-AnilaNeural"])
+        async def _run():
+            tts = edge_tts.Communicate(script_text, voice=voice, rate="+10%")
+            await tts.save(output_path)
+        asyncio.run(_run())
+        if os.path.getsize(output_path) > 1000:
+            return
+    except Exception:
+        traceback.print_exc()
+
+    from gtts import gTTS
+    tts = gTTS(text=script_text, lang="sq", slow=False)
+    tts.save(output_path)
 
 def create_thumbnail(title, output_path):
     img = Image.new("RGB", (1280, 720), (20, 30, 48))
