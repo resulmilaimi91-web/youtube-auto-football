@@ -1,0 +1,49 @@
+name: YouTube Auto Upload 24/7
+
+on:
+  schedule:
+    - cron: "0 */6 * * *"
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+jobs:
+  generate-and-upload:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install FFmpeg
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Download background assets
+        run: |
+          mkdir -p assets
+          if [ ! -f assets/background.mp4 ]; then
+            ffmpeg -f lavfi -i color=c=#141e30:s=1080x1920:d=30 -c:v libx264 -pix_fmt yuv420p assets/background.mp4
+          fi
+
+      - name: Generate & Upload Video
+        env:
+          YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
+          YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
+          YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
+          YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
+          CHANNEL_NAME: ${{ secrets.CHANNEL_NAME }}
+          UPLOAD_SCHEDULE_HOURS: ${{ secrets.UPLOAD_SCHEDULE_HOURS }}
+        run: python -m src.main
+
+      - name: Keep runner alive
+        run: echo "Workflow completed at $(date)"
