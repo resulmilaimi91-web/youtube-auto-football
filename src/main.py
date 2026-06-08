@@ -10,6 +10,7 @@ from src.script_generator import generate_script
 from src.video_generator import create_video
 from src.youtube_uploader import upload_video
 
+
 def run():
     print(f"[{datetime.now()}] Starting YouTube auto-upload pipeline...")
 
@@ -41,6 +42,7 @@ def run():
 
     print(f"[{datetime.now()}] Pipeline complete! Video: {video_url}")
     return video_url
+
 
 if __name__ == "__main__":
     run()

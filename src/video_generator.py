@@ -11,22 +11,6 @@ from moviepy import (
 from PIL import Image, ImageDraw, ImageFont
 from src.config import Config
 
-def generate_voiceover(script_text, output_path):
-    try:
-        import edge_tts
-        voice = random.choice(["sq-AL-IlirNeural", "sq-AL-AnilaNeural"])
-        async def _run():
-            tts = edge_tts.Communicate(script_text, voice=voice, rate="+10%")
-            await tts.save(output_path)
-        asyncio.run(_run())
-        if os.path.getsize(output_path) > 1000:
-            return
-    except Exception:
-        traceback.print_exc()
-
-    from gtts import gTTS
-    tts = gTTS(text=script_text, lang="sq", slow=False)
-    tts.save(output_path)
 
 def _get_font(size):
     fonts = [
@@ -38,9 +22,31 @@ def _get_font(size):
     for path in fonts:
         try:
             return ImageFont.truetype(path, size)
-        except:
+        except Exception:
             pass
     return ImageFont.load_default()
+
+
+def generate_voiceover(script_text, output_path):
+    try:
+        import edge_tts
+
+        voice = random.choice(["en-US-GuyNeural", "en-US-JennyNeural", "en-GB-RyanNeural"])
+        async def _run():
+            tts = edge_tts.Communicate(script_text, voice=voice, rate="+5%")
+            await tts.save(output_path)
+
+        import asyncio
+        asyncio.run(_run())
+        if os.path.getsize(output_path) > 1000:
+            return
+    except Exception:
+        traceback.print_exc()
+
+    from gtts import gTTS
+    tts = gTTS(text=script_text, lang="en", slow=False)
+    tts.save(output_path)
+
 
 def create_thumbnail(title, output_path):
     img = Image.new("RGB", (1280, 720), (20, 30, 48))
@@ -56,9 +62,10 @@ def create_thumbnail(title, output_path):
         draw.text((40, y), line, fill=(255, 255, 255), font=font)
         y += 70
 
-    draw.text((40, 530), "ABONOHU!", fill=(0, 0, 0), font=small_font)
+    draw.text((40, 530), "SUBSCRIBE!", fill=(0, 0, 0), font=small_font)
     img.save(output_path, quality=95)
     return output_path
+
 
 def create_video(script_data, output_path):
     VOICE_PATH = os.path.join(Config.OUTPUT_DIR, "voiceover.mp3")
@@ -103,7 +110,7 @@ def create_video(script_data, output_path):
     ).with_position("center").with_duration(duration)
 
     footer = TextClip(
-        text="ABONOHU",
+        text="SUBSCRIBE",
         font_size=40,
         color="yellow",
         font=font_path,

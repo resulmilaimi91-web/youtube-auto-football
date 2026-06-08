@@ -1,86 +1,101 @@
-# YouTube Auto Football - Sistem i Automatizuar 24/7
+# YouTube Auto Football - 24/7 Automated Channel
 
-Sistem automatik që gjeneron video futbolli dhe i ngarkon në YouTube çdo 6 orë.
+An automated system that generates football/soccer videos and uploads them to YouTube every 6 hours — completely hands-free.
 
-## Si funksionon?
+## How It Works
 
-1. **Merr të dhëna** nga TheSportsDB dhe BBC Sport për ndeshjet dhe lajmet e fundit
-2. **Gjeneron script-in** automatikisht në shqip
-3. **Krijon videon** me titra, zë (TTS në shqip) dhe sfond
-4. **Ngarkon në YouTube** automatikisht
-5. **Përsëritet çdo 6 orë** 24/7 përmes GitHub Actions
+1. **Fetches data** from TheSportsDB and BBC Sport for latest matches and news
+2. **Generates script** automatically in English with professional templates
+3. **Creates video** with voiceover (TTS), captions, subtitles, and background
+4. **Uploads to YouTube** automatically via API
+5. **Repeats every 6 hours** 24/7 through GitHub Actions
 
-## Instalimi
+## Features
 
-### 1. Krijoni një YouTube API Key
+- Fully automated — zero manual work
+- Professional English voiceover (Microsoft Edge TTS / Google TTS)
+- Custom thumbnails generated automatically
+- Multiple video templates (news, goals, analysis)
+- Runs 24/7 on GitHub Actions (free tier)
+- Easy to customize and extend
 
-1. Shkoni te [Google Cloud Console](https://console.cloud.google.com/)
-2. Krijoni një projekt të ri
-3. Aktivizoni **YouTube Data API v3**
-4. Krijoni **OAuth 2.0 Credentials** (Desktop app)
-5. Shkarkoni `client_secret.json`
+## Setup
 
-### 2. Konfigurimi në GitHub
+### 1. YouTube API Setup
 
-1. **Fork/Clone** këtë repo në GitHub
-2. Shkoni te Settings → Secrets and variables → Actions
-3. Shtoni këto **repository secrets**:
+1. Go to [Google Cloud Console](https://console.cloud.google.com/)
+2. Create a new project
+3. Enable **YouTube Data API v3**
+4. Create **OAuth 2.0 Credentials** (Desktop app type)
+5. Note down your Client ID, Client Secret, and generate a refresh token
 
-| Secret | Përshkrimi |
-|--------|------------|
-| `YOUTUBE_CLIENT_ID` | Client ID nga Google Cloud |
-| `YOUTUBE_CLIENT_SECRET` | Client Secret nga Google Cloud |
-| `YOUTUBE_REFRESH_TOKEN` | Refresh token (shiko më poshtë) |
-| `CHANNEL_NAME` | Emri i kanalit tënd (opsional) |
-| `UPLOAD_SCHEDULE_HOURS` | Sa orë mes çdo upload-i (default: 6) |
+### 2. GitHub Configuration
 
-### 3. Gjenerimi i Refresh Token-it
+Fork this repository and add these **repository secrets** (Settings → Secrets → Actions):
 
-Ekzekutoni lokalisht:
+| Secret | Description |
+|--------|-------------|
+| `YOUTUBE_API_KEY` | Your YouTube API key |
+| `YOUTUBE_CLIENT_ID` | OAuth Client ID |
+| `YOUTUBE_CLIENT_SECRET` | OAuth Client Secret |
+| `YOUTUBE_REFRESH_TOKEN` | OAuth refresh token |
+| `CHANNEL_NAME` | Your channel name (optional) |
+| `UPLOAD_SCHEDULE_HOURS` | Upload frequency in hours (default: 6) |
+
+### 3. Generate Refresh Token
+
+Run locally:
 ```bash
 pip install -r requirements.txt
 python -c "from src.youtube_uploader import get_authenticated_service; get_authenticated_service()"
 ```
 
-Kjo do të hapë një browser për login. Pasi të autentifikoheni, refresh token do të ruhet në `output/token.pickle`.
+This will open a browser for Google authentication. The refresh token will be saved to `output/token.pickle`.
 
-### 4. Aktivizimi i GitHub Actions
+> **Important**: Extract and add the refresh token as a GitHub secret:
+> ```bash
+> python -c "import pickle; data = pickle.load(open('output/token.pickle','rb')); print(data.refresh_token)"
+> ```
 
-Pasi secret-et janë konfiguruar:
-1. Shkoni te GitHub → Actions
-2. Enable workflows
-3. Workflow do të ekzekutohet automatikisht çdo 6 orë
+### 4. Enable GitHub Actions
 
-Mund ta ekzekutoni manualisht nga GitHub → Actions → "Run workflow".
+Once secrets are configured, the workflow triggers automatically:
+- On every push to `main`
+- On schedule (every 6 hours by default)
+- Manually via Actions → "Run workflow"
 
-## Struktura
+## Project Structure
 
 ```
 youtube-auto-football/
-├── .github/workflows/    # GitHub Actions
+├── .github/workflows/    # GitHub Actions automation
 ├── src/
-│   ├── config.py          # Konfigurimi
-│   ├── football_data.py   # Marrja e të dhënave
-│   ├── script_generator.py# Gjenerimi i script-it
-│   ├── video_generator.py # Krijimi i videos
-│   ├── youtube_uploader.py# Upload në YouTube
-│   └── main.py            # Main pipeline
+│   ├── config.py         # Configuration & environment
+│   ├── football_data.py  # Football data fetching
+│   ├── script_generator.py # Script & template engine
+│   ├── video_generator.py  # Video & thumbnail creation
+│   ├── youtube_uploader.py # YouTube API uploader
+│   └── main.py           # Main pipeline (orchestrator)
+├── assets/               # Background videos, music
 ├── requirements.txt
 └── README.md
 ```
 
-## Personalizimi
+## Customization
 
-Mund të ndryshoni:
-- **Template-t e videove** në `script_generator.py`
-- **Frequncën e upload-it** në `.github/workflows/auto-upload.yml` (cron)
-- **Stilin e videos** në `video_generator.py`
-- **Futni OpenAI API Key** për script më kreativë
+- **Video templates**: Edit `src/script_generator.py`
+- **Upload frequency**: Change `cron` in `.github/workflows/auto-upload.yml`
+- **Video style**: Edit `src/video_generator.py` (colors, fonts, layout)
+- **Better scripts**: Add `OPENAI_API_KEY` to your secrets for AI-generated content
 
-## Këshilla për fitime
+## Monetization Tips
 
-- Postoni **vazhdimisht** (çdo 6 orë) për të rritur reach-in
-- Përdorni **titull dhe thumbnail** tërheqës
-- Targetoni **fjalë kyçe** si: golat e javës, highlights, futboll shqip
-- Aktivizoni **monetization** në YouTube pas 1000 subscribers
-- Lidheni me **programe affiliate** për baste sportive / merchandise
+- **Post consistently** — daily uploads grow your audience faster
+- **Optimize thumbnails** — use bright colors, bold text, and action shots
+- **Target keywords** — "football highlights", "soccer news", "premier league goals"
+- **Enable monetization** after reaching 1000 subscribers / 4000 watch hours
+- **Add affiliate links** — sports betting, merchandise, streaming services
+
+## License
+
+MIT
