@@ -16,7 +16,7 @@ from src.script_generator import generate_script
 from src.video_generator import create_video, STYLES
 from src.youtube_uploader import upload_video, upload_short
 
-QUOTA_FILE = os.path.join(Config.OUTPUT_DIR, "upload_quota.json")
+QUOTA_FILE = os.path.join(os.path.dirname(os.path.dirname(__file__)), "upload_quota.json")
 
 
 def _check_upload_quota():

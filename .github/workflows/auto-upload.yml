@@ -14,6 +14,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Restore upload quota cache
+        uses: actions/cache@v4
+        with:
+          path: upload_quota.json
+          key: upload-quota-${{ github.run_id }}
+          restore-keys: upload-quota-
+
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
@@ -45,6 +52,13 @@ jobs:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
         run: python -m src.main
+
+      - name: Save upload quota cache
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: upload_quota.json
+          key: upload-quota-${{ github.run_id }}
 
       - name: Keep runner alive
         run: echo "Workflow completed at $(date)"
