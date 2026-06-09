@@ -1,17 +1,17 @@
 import os
 import random
-import json
 from datetime import datetime
 
 
 def generate_ai_script(match_text="", stories=None, topic_hint=""):
     try:
-        import anthropic
-        api_key = os.environ.get("ANTHROPIC_API_KEY", "")
+        import google.generativeai as genai
+        api_key = os.environ.get("GEMINI_API_KEY", "")
         if not api_key:
             return None
 
-        client = anthropic.Anthropic(api_key=api_key)
+        genai.configure(api_key=api_key)
+        model = genai.GenerativeModel("gemini-1.5-flash")
 
         date_str = datetime.now().strftime("%B %d, %Y")
 
@@ -42,13 +42,8 @@ Create a video script about the FIFA World Cup 2026. Requirements:
 
 Script:"""
 
-        message = client.messages.create(
-            model="claude-3-5-sonnet-20241022",
-            max_tokens=1024,
-            messages=[{"role": "user", "content": prompt}]
-        )
-
-        script = message.content[0].text.strip()
+        response = model.generate_content(prompt)
+        script = response.text.strip()
 
         if len(script) < 100:
             return None
@@ -67,7 +62,7 @@ Script:"""
         }
 
     except Exception as e:
-        print(f"Claude API failed: {e}")
+        print(f"Gemini API failed: {e}")
         return None
 
 

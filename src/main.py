@@ -32,12 +32,12 @@ def run():
     print("[2/4] Generating script...")
     script_data = None
 
-    if os.environ.get("ANTHROPIC_API_KEY"):
+    if os.environ.get("GEMINI_API_KEY"):
         try:
             from src.ai_script_generator import generate_ai_script
             script_data = generate_ai_script(match_text, all_stories)
             if script_data:
-                print("  Using AI-generated script (Claude)")
+                print("  Using AI-generated script (Gemini)")
         except Exception as e:
             print(f"  AI script failed: {e}")
 
