@@ -18,7 +18,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: upload_quota.json
-          key: upload-quota-state
+          key: upload-quota-v2
           restore-keys: upload-quota-
 
       - name: Setup Python
@@ -58,7 +58,7 @@ jobs:
         uses: actions/cache/save@v4
         with:
           path: upload_quota.json
-          key: upload-quota-state
+          key: upload-quota-v2
 
       - name: Keep runner alive
         run: echo "Workflow completed at $(date)"
