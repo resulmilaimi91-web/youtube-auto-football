@@ -4,13 +4,91 @@ from datetime import datetime
 
 
 def generate_ai_script(match_text="", stories=None, topic_hint=""):
+    script = None
+
+    script = _try_huggingface(match_text, stories, topic_hint)
+    if script:
+        return _build_result(script, topic_hint)
+
+    script = _try_groq(match_text, stories, topic_hint)
+    if script:
+        return _build_result(script, topic_hint)
+
+    return None
+
+
+def _try_huggingface(match_text="", stories=None, topic_hint=""):
     try:
-        from google import genai
-        api_key = os.environ.get("GEMINI_API_KEY", "")
+        import urllib.request
+        import json
+
+        api_key = os.environ.get("HF_TOKEN", "")
+        date_str = datetime.now().strftime("%B %d, %Y")
+
+        context = f"Today is {date_str}."
+        if match_text:
+            context += f"\nLatest matches: {match_text}"
+        if stories:
+            context += f"\nRecent news: {'; '.join(stories[:3])}"
+
+        prompt = f"""You are a professional football news anchor for YouTube.
+
+{context}
+
+Write a 250-word script about FIFA World Cup 2026. Be professional, engaging, natural like a TV news anchor. No emojis. No markdown. Just spoken English.
+
+Script:"""
+
+        payload = json.dumps({
+            "inputs": prompt,
+            "parameters": {
+                "max_new_tokens": 512,
+                "temperature": 0.7,
+                "do_sample": True,
+                "return_full_text": False,
+            }
+        }).encode()
+
+        headers = {
+            "Authorization": f"Bearer {api_key}" if api_key else "",
+            "Content-Type": "application/json",
+        }
+
+        models = [
+            "mistralai/Mistral-7B-Instruct-v0.3",
+            "HuggingFaceH4/zephyr-7b-beta",
+            "google/gemma-2-2b-it",
+        ]
+
+        for model in models:
+            try:
+                url = f"https://api-inference.huggingface.co/models/{model}"
+                req = urllib.request.Request(url, data=payload, headers={k: v for k, v in headers.items() if v}, method="POST")
+                resp = urllib.request.urlopen(req, timeout=60)
+                result = json.loads(resp.read())
+
+                if isinstance(result, list) and len(result) > 0:
+                    generated = result[0].get("generated_text", "")
+                    if len(generated) > 100:
+                        return generated.strip()
+            except Exception:
+                continue
+
+        return None
+
+    except Exception as e:
+        print(f"HuggingFace failed: {e}")
+        return None
+
+
+def _try_groq(match_text="", stories=None, topic_hint=""):
+    try:
+        import urllib.request
+        import json
+
+        api_key = os.environ.get("GROQ_API_KEY", "")
         if not api_key:
             return None
-
-        client = genai.Client(api_key=api_key)
 
         date_str = datetime.now().strftime("%B %d, %Y")
 
@@ -19,56 +97,49 @@ def generate_ai_script(match_text="", stories=None, topic_hint=""):
             context += f"\nLatest matches: {match_text}"
         if stories:
             context += f"\nRecent news: {'; '.join(stories[:3])}"
-        if topic_hint:
-            context += f"\nFocus topic: {topic_hint}"
 
-        prompt = f"""You are a professional football news anchor for a YouTube channel called "Football Highlights Daily".
+        prompt = f"""You are a professional football news anchor for YouTube.
 
 {context}
 
-Create a video script about the FIFA World Cup 2026. Requirements:
-- Start with a professional greeting mentioning today's date
-- Speak in a natural, engaging news anchor tone
-- Include 3-5 key football news stories or World Cup 2026 updates
-- Use transitional phrases between segments
-- End with a call to action (subscribe, comment, like)
-- Write as if speaking to camera, conversational but professional
-- Keep it between 200-350 words
-- Do NOT use any emojis
-- Do NOT use markdown formatting
-- Use periods and commas for natural pauses
-- Write in English
+Write a 250-word script about FIFA World Cup 2026. Be professional, engaging, natural like a TV news anchor. No emojis. No markdown. Just spoken English.
 
 Script:"""
 
-        response = client.models.generate_content(
-            model="gemini-2.0-flash",
-            contents=prompt
+        payload = json.dumps({
+            "model": "llama3-8b-8192",
+            "messages": [{"role": "user", "content": prompt}],
+            "max_tokens": 512,
+            "temperature": 0.7,
+        }).encode()
+
+        req = urllib.request.Request(
+            "https://api.groq.com/openai/v1/chat/completions",
+            data=payload,
+            method="POST",
+            headers={
+                "Authorization": f"Bearer {api_key}",
+                "Content-Type": "application/json",
+            }
         )
-        script = response.text.strip()
+        resp = urllib.request.urlopen(req, timeout=30)
+        result = json.loads(resp.read())
 
-        if len(script) < 100:
-            return None
+        content = result["choices"][0]["message"]["content"]
+        if len(content) > 100:
+            return content.strip()
 
-        title = _extract_title(script, topic_hint)
-        description = _create_description(title, script)
-        tags = _create_tags(title)
-        hashtags = _create_hashtags(title)
-
-        return {
-            "title": title,
-            "description": description,
-            "tags": tags,
-            "hashtags": hashtags,
-            "script": script,
-        }
+        return None
 
     except Exception as e:
-        print(f"Gemini API failed: {e}")
+        print(f"Groq failed: {e}")
         return None
 
 
-def _extract_title(script, hint=""):
+def _build_result(script, topic_hint=""):
+    if len(script) < 100:
+        return None
+
     titles = [
         "FIFA WORLD CUP 2026: Complete Guide To The Biggest Event!",
         "World Cup 2026 Host Cities: Full Stadium Tour!",
@@ -81,12 +152,10 @@ def _extract_title(script, hint=""):
         "World Cup 2026: Prize Money And Rewards Revealed!",
         "World Cup 2026: Latest Qualification Results!",
     ]
-    return random.choice(titles)
+    title = random.choice(titles)
 
-
-def _create_description(title, script):
-    first_100 = script[:200].replace("\n", " ")
-    return f"""{first_100}...
+    first_200 = script[:200].replace("\n", " ")
+    description = f"""{first_200}...
 
 SUBSCRIBE for daily World Cup 2026 coverage!
 LIKE to support the channel!
@@ -94,16 +163,19 @@ COMMENT your predictions!
 
 #worldcup2026 #fifa #football #soccer #worldcup #footballnews #highlights #sports #football2026 #fifaworldcup"""
 
-
-def _create_tags(title):
-    base = ["worldcup2026", "fifa", "worldcup", "football", "soccer", "footballnews", "sports"]
+    tags = ["worldcup2026", "fifa", "worldcup", "football", "soccer", "footballnews", "sports"]
     extras = random.sample(["highlights", "footballhighlights", "worldcup2026", "fifaworldcup", "2026worldcup", "dailyfootball", "dailysoccer"], 5)
-    return base + extras
+    tags.extend(extras)
 
+    hashtags = ["worldcup2026", "fifa", "football", "soccer", "worldcup"]
 
-def _create_hashtags(title):
-    base = ["worldcup2026", "fifa", "football", "soccer", "worldcup"]
-    return base
+    return {
+        "title": title,
+        "description": description,
+        "tags": tags,
+        "hashtags": hashtags,
+        "script": script,
+    }
 
 
 if __name__ == "__main__":
@@ -111,3 +183,5 @@ if __name__ == "__main__":
     if result:
         print("Title:", result["title"])
         print("Script:", result["script"][:200] + "...")
+    else:
+        print("No AI available, using templates")
