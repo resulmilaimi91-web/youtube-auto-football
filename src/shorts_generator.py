@@ -4,8 +4,9 @@ import math
 from PIL import Image, ImageDraw, ImageFont
 from moviepy import (
     ImageClip, AudioFileClip, CompositeVideoClip, CompositeAudioClip,
-    concatenate_videoclips, afx, TextClip, ColorClip
+    concatenate_videoclips, TextClip, ColorClip
 )
+from moviepy.audio.fx import AudioFadeIn, AudioFadeOut
 from src.config import Config
 
 
@@ -148,7 +149,7 @@ def create_short_video(theme_idx, output_path, voice_path=None):
         bg_clip = bg_clip.with_duration(duration)
         final_audio = None
 
-    bg_clip = bg_clip.with_effects([afx.FadeIn(0.5), afx.FadeOut(0.5)])
+    bg_clip = bg_clip.with_effects([AudioFadeIn(0.5), AudioFadeOut(0.5)])
 
     if final_audio:
         bg_clip = bg_clip.with_audio(final_audio)

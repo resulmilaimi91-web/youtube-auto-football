@@ -8,9 +8,10 @@ import math
 
 from moviepy import (
     VideoFileClip, ColorClip, TextClip, AudioFileClip,
-    CompositeVideoClip, CompositeAudioClip, afx, ImageClip,
+    CompositeVideoClip, CompositeAudioClip, ImageClip,
     concatenate_videoclips
 )
+from moviepy.audio.fx import AudioFadeIn, AudioFadeOut, MultiplyVolume
 from PIL import Image, ImageDraw, ImageFont
 from src.config import Config
 from src.tv_assets import create_tv_intro, create_tv_outro, create_watermark, create_logo
@@ -556,7 +557,7 @@ def create_video(script_data, output_path, style=None):
                 zoom = "in" if i % 2 == 0 else "out"
                 clip = _make_zoom_clip(p, seg_dur, W, H, zoom)
                 fade = min(0.5, seg_dur * 0.15)
-                clip = clip.with_effects([afx.FadeIn(fade), afx.FadeOut(fade)])
+                clip = clip.with_effects([AudioFadeIn(fade), AudioFadeOut(fade)])
                 scenes.append(clip)
             except Exception:
                 pass
@@ -701,7 +702,7 @@ def create_video(script_data, output_path, style=None):
     overlays.append(subscribe)
 
     if os.path.exists(MUSIC_PATH):
-        music = AudioFileClip(MUSIC_PATH).with_duration(main_duration).with_effects([afx.MultiplyVolume(0.08)])
+        music = AudioFileClip(MUSIC_PATH).with_duration(main_duration).with_effects([MultiplyVolume(0.08)])
         final_audio = CompositeAudioClip([audio, music])
     else:
         final_audio = audio

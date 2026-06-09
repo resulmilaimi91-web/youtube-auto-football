@@ -2,8 +2,9 @@ import os
 import random
 from PIL import Image, ImageDraw, ImageFont
 from moviepy import (
-    ImageClip, AudioFileClip, concatenate_videoclips, afx
+    ImageClip, AudioFileClip, concatenate_videoclips
 )
+from moviepy.audio.fx import AudioFadeIn, AudioFadeOut
 from src.config import Config
 
 
@@ -115,7 +116,7 @@ def create_viral_short(theme_idx, output_path, voice_path=None):
     clips = []
     for i, frame_path in enumerate(frames):
         clip = ImageClip(frame_path, duration=part_duration)
-        clip = clip.with_effects([afx.FadeIn(0.3), afx.FadeOut(0.3)])
+        clip = clip.with_effects([AudioFadeIn(0.3), AudioFadeOut(0.3)])
         clips.append(clip)
 
     video = concatenate_videoclips(clips, method="compose")
