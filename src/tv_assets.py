@@ -3,7 +3,7 @@ import random
 from PIL import Image, ImageDraw, ImageFont
 from moviepy import (
     ColorClip, TextClip, CompositeVideoClip, CompositeAudioClip,
-    AudioFileClip, afx, ImageClip, concatenate_videoclips
+    AudioFileClip, ImageClip, concatenate_videoclips
 )
 
 W, H = 1920, 1080
@@ -13,10 +13,11 @@ OUTPUT_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "output")
 
 def _get_font(size):
     fonts = [
+        "C:/Windows/Fonts/arialbd.ttf",
+        "C:/Windows/Fonts/arial.ttf",
         "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
         "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
         "/usr/share/fonts/truetype/freefont/FreeSansBold.ttf",
-        "arial.ttf", "Arial.ttf", "Arial Bold.ttf",
     ]
     for path in fonts:
         try:
@@ -56,14 +57,15 @@ def create_logo(output_path):
 def create_tv_intro(output_path, duration=4):
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     font_path = None
-    for f in ["/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
-              "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
-              "arial.ttf", "Arial.ttf"]:
+    for f in ["C:/Windows/Fonts/arialbd.ttf",
+              "C:/Windows/Fonts/arial.ttf",
+              "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
+              "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"]:
         if os.path.exists(f):
             font_path = f
             break
     if not font_path:
-        font_path = "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"
+        font_path = "C:/Windows/Fonts/arial.ttf"
 
     intro_bg = ColorClip(size=(W, H), color=(0, 0, 0), duration=duration)
 
@@ -103,14 +105,15 @@ def create_tv_intro(output_path, duration=4):
 def create_tv_outro(output_path, duration=3):
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     font_path = None
-    for f in ["/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
-              "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
-              "arial.ttf", "Arial.ttf"]:
+    for f in ["C:/Windows/Fonts/arialbd.ttf",
+              "C:/Windows/Fonts/arial.ttf",
+              "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
+              "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"]:
         if os.path.exists(f):
             font_path = f
             break
     if not font_path:
-        font_path = "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"
+        font_path = "C:/Windows/Fonts/arial.ttf"
 
     outro_bg = ColorClip(size=(W, H), color=(0, 0, 0), duration=duration)
 

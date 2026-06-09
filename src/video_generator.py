@@ -579,14 +579,17 @@ def create_video(script_data, output_path, style=None):
         main_video = scenes[0].with_duration(main_duration)
 
     font_path = None
-    for f in ["/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
-              "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
-              "arial.ttf", "Arial.ttf"]:
+    for f in ["C:/Windows/Fonts/arialbd.ttf",
+              "C:/Windows/Fonts/arial.ttf",
+              "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
+              "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"]:
         if os.path.exists(f):
             font_path = f
             break
     if not font_path and sys.platform == "linux":
         font_path = "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"
+    if not font_path:
+        font_path = "C:/Windows/Fonts/arial.ttf"
 
     overlays = []
 
