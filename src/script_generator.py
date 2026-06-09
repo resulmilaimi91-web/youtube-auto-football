@@ -1,122 +1,129 @@
 import random
-import re
 from datetime import datetime
-
-MONETIZATION_TAGS = [
-    "football", "soccer", "worldcup2026", "fifa",
-    "premierleague", "laliga", "seriea", "bundesliga",
-    "championsleague", "footballhighlights", "footballnews",
-    "goals", "highlights", "sports", "football2026",
-]
 
 TEMPLATES = [
     {
-        "title": "FIFA WORLD CUP 2026: Complete Guide To The Biggest Event!",
-        "description": "The FIFA World Cup 2026 is coming to USA, Canada, and Mexico! Here is everything you need to know about the biggest sporting event on Earth.\n\nSUBSCRIBE for daily World Cup updates!\nLIKE to support the channel!\nCOMMENT your favorite team!\n\n#worldcup2026 #fifa #worldcup #football #soccer #fifaworldcup #2026worldcup #canada #mexico #usa #footballnews #sports #worldcuphighlights #footballhighlights",
-        "tags": ["worldcup2026", "fifa", "worldcup", "football", "soccer", "fifaworldcup", "2026worldcup", "canada", "mexico", "usa", "footballnews", "sports", "worldcuphighlights", "footballhighlights"],
-        "hashtags": ["worldcup2026", "fifa", "worldcup", "football", "soccer"],
+        "title": "FIFA WORLD CUP 2026: Everything You Need To Know!",
+        "script": """Welcome back to Football Highlights Daily. Today is {date}, and we have got a packed show covering everything about the FIFA World Cup 2026.
+
+Let us start with the basics. The 2026 World Cup will be hosted across three nations: the United States, Mexico, and Canada. This is the first time in history that three countries will co-host the tournament, and it promises to be absolutely massive.
+
+The tournament kicks off on June 11th and runs through July 19th, 2026. That is 39 days of non-stop football action across 16 incredible host cities. From the iconic MetLife Stadium in New York to the legendary Estadio Azteca in Mexico City, every match will be played in world-class venues.
+
+Now, here is where it gets really exciting. For the first time ever, the World Cup will feature 48 teams instead of the usual 32. That means more nations, more matches, and more drama. We are talking about 104 total matches, with teams from every corner of the globe competing for the most prestigious trophy in football.
+
+The format has also changed. Teams will be divided into 12 groups of four, with the top two from each group advancing, along with the eight best third-placed teams. That gives us a brand new round of 32 knockout stage.
+
+So, which team are you backing to win it all? Will it be defending champions Argentina, or will a new king be crowned? Drop your predictions in the comments below, and do not forget to subscribe for daily World Cup coverage.""",
     },
     {
-        "title": "World Cup 2026 Host Cities: Full Stadium Tour!",
-        "description": "Take a complete tour of all 16 host cities for the 2026 FIFA World Cup. From MetLife Stadium to Estadio Azteca, which venue is the best?\n\nSUBSCRIBE for more World Cup content!\nLIKE for the stadiums!\n\n#worldcup2026 #stadiums #fifa #worldcup #canada #mexico #usa #soccer #football #worldcupstadiums #worldcuppreview",
-        "tags": ["worldcup2026", "stadiums", "fifa", "worldcup", "canada", "mexico", "usa", "soccer", "football", "worldcupstadiums", "worldcuppreview"],
-        "hashtags": ["worldcup2026", "stadiums", "fifa", "worldcup", "football"],
+        "title": "World Cup 2026: Host Cities And Stadiums Revealed!",
+        "script": """Hello and welcome to Football Highlights Daily. It is {date}, and today we are taking you on a complete tour of all 16 host cities for the 2026 FIFA World Cup.
+
+Starting in the United States, we have got eleven incredible cities. Atlanta will host matches at the Mercedes-Benz Stadium, home of the Atlanta Falcons. Boston brings us to Gillette Stadium, while Dallas will use the massive AT and T Stadium with its retractable roof.
+
+Houston, Kansas City, Los Angeles, Miami, and Seattle all have stunning venues ready to welcome the world. And of course, the final will be held at MetLife Stadium in New Jersey, just outside New York City.
+
+Moving up to Canada, Toronto will host matches at BMO Field, while Vancouver welcomes fans at BC Place. Both cities are ready to showcase Canadian football culture to the world.
+
+In Mexico, we have three legendary venues. Mexico City's Estadio Azteca, which hosted the 1970 and 1986 World Cup finals, will once again be center stage. Guadalajara and Monterrey round out the Mexican venues with their modern stadiums.
+
+Each city has been preparing for years to host this tournament. New infrastructure, upgraded stadiums, and world-class hospitality will make this the greatest World Cup ever.
+
+Which host city are you most excited to visit? Let us know in the comments, and subscribe for more World Cup content!""",
     },
     {
-        "title": "World Cup 2026: Every Team That Has Qualified!",
-        "description": "Updated list of all teams that have qualified for the 2026 FIFA World Cup. Who is in, who is out, and who still has a chance?\n\nSUBSCRIBE to stay updated!\nLIKE to support your team!\n\n#worldcup2026 #qualifiers #fifa #worldcup #football #soccer #worldcupqualifiers #internationalfootball #qualification",
-        "tags": ["worldcup2026", "qualifiers", "fifa", "worldcup", "football", "soccer", "worldcupqualifiers", "internationalfootball"],
-        "hashtags": ["worldcup2026", "qualifiers", "fifa", "worldcup", "football"],
+        "title": "Top 10 Players To Watch At World Cup 2026!",
+        "script": """Hey there football fans, welcome back to Football Highlights Daily. Today is {date}, and we are counting down the top 10 players who will light up the 2026 FIFA World Cup.
+
+Number 10: Jude Bellingham. The English midfielder has been absolutely sensational at Real Madrid, and he will be leading England's charge in North America.
+
+Number 9: Vinicius Junior. The Brazilian winger is pure electricity on the pitch. His pace and skill will terrorize defenses.
+
+Number 8: Pedri. Spain's midfield maestro controls the tempo of every game he plays. At just 23, he will be in his prime.
+
+Number 7: Bukayo Saka. Arsenal's star has become one of the most dangerous attackers in world football.
+
+Number 6: Florian Wirtz. The German prodigy has taken the Bundesliga by storm and will be Germany's key man.
+
+Number 5: Phil Foden. The Manchester City playmaker can unlock any defense with his vision and creativity.
+
+Number 4: Kylian Mbappe. Already a World Cup winner, the French superstar will be looking to add another trophy to his collection.
+
+Number 3: Erling Haaland. The Norwegian goal machine has broken every record at Manchester City.
+
+Number 2: Lamine Yamal. The Spanish teenager is rewriting history books at Barcelona.
+
+And number 1: Lionel Messi. Even at 39, if he plays, he remains the greatest of all time.
+
+Who is your number one? Drop your list in the comments and subscribe for daily football content!""",
     },
     {
-        "title": "World Cup 2026: New 48-Team Format Explained!",
-        "description": "The 2026 World Cup features 48 teams for the first time ever. We break down the new format, group stages, and how it affects every team.\n\nSUBSCRIBE for World Cup news!\nLIKE for the format explainer!\n\n#worldcup2026 #fifa #worldcup #format #48teams #soccer #football #worldcupnews #newformat #tournament",
-        "tags": ["worldcup2026", "fifa", "worldcup", "format", "48teams", "soccer", "football", "worldcupnews", "newformat", "tournament"],
-        "hashtags": ["worldcup2026", "format", "fifa", "worldcup", "football"],
+        "title": "World Cup 2026 Qualification: Who Has Made It?",
+        "script": """Good morning football fans, welcome to Football Highlights Daily. It is {date}, and we have got the latest World Cup 2026 qualification updates for you.
+
+The qualification process has been one of the most dramatic in World Cup history. Let us break down who has already booked their tickets to North America.
+
+From Europe, powerhouses like France, England, Spain, Germany, and Italy have all qualified. The defending champions Argentina secured their spot from South America, along with Brazil, Uruguay, and Colombia.
+
+In Asia, Japan, South Korea, Australia, and Iran have earned their places. Africa has sent five strong representatives including Morocco, who made history at the 2022 World Cup, along with Senegal, Tunisia, Cameroon, and Ghana.
+
+From the CONCACAF region, hosts USA, Mexico, and Canada automatically qualified, while Costa Rica and Jamaica joined them through qualification.
+
+That leaves us with some incredible teams still fighting for the remaining spots. Play-offs and final qualification rounds will determine the last few places.
+
+The tournament will feature some首次 appearances too. Cape Verde, Curacao, Jordan, and Uzbekistan could all make their World Cup debuts.
+
+Every four years, the World Cup brings the entire world together. And in 2026, with 48 teams competing, it will be bigger and better than ever.
+
+Subscribe now so you do not miss any qualification updates!""",
     },
     {
-        "title": "Top 10 Players Who Will Dominate World Cup 2026!",
-        "description": "From Mbappe to Haaland, Bellingham to Vinicius, these are the players who will light up the 2026 FIFA World Cup. Who is your pick?\n\nSUBSCRIBE for daily football content!\nLIKE for the top players!\n\n#worldcup2026 #fifa #worldcup #mbappe #haaland #bellingham #football #soccer #footballstars #worldcupstars #worldclass",
-        "tags": ["worldcup2026", "fifa", "worldcup", "mbappe", "haaland", "bellingham", "football", "soccer", "footballstars", "worldcupstars"],
-        "hashtags": ["worldcup2026", "football", "mbappe", "fifa", "worldcup"],
-    },
-    {
-        "title": "World Cup 2026: Who Will Win The Trophy?",
-        "description": "Expert predictions for the 2026 FIFA World Cup. We analyze the favorites, dark horses, and make our case for who will lift the trophy.\n\nSUBSCRIBE for predictions and analysis!\nLIKE for your favorite team!\n\n#worldcup2026 #fifa #worldcup #predictions #favorites #soccer #football #worldcuppredictions #champions #winner",
-        "tags": ["worldcup2026", "fifa", "worldcup", "predictions", "favorites", "soccer", "football", "worldcuppredictions", "champions"],
-        "hashtags": ["worldcup2026", "predictions", "fifa", "worldcup", "football"],
-    },
-    {
-        "title": "Today's Football News + World Cup 2026 Updates!",
-        "description": "The latest football news from around the globe including World Cup 2026 preparations, transfer updates, and match results.\n\nSUBSCRIBE so you never miss a video!\nLIKE to help the channel grow!\n\n#footballnews #worldcup2026 #soccer #football #premierleague #laliga #seriea #bundesliga #championsleague #dailysports #footballhighlights",
-        "tags": ["footballnews", "worldcup2026", "soccer", "football", "premierleague", "laliga", "seriea", "bundesliga", "championsleague", "dailysports", "footballhighlights"],
-        "hashtags": ["footballnews", "worldcup2026", "football", "soccer", "highlights"],
+        "title": "World Cup 2026: Prize Money And What Is At Stake!",
+        "script": """Welcome back to Football Highlights Daily. Today is {date}, and we are diving into the massive prize money pool for the 2026 FIFA World Cup.
+
+FIFA has announced a record-breaking prize fund for the 2026 tournament. The total purse has increased significantly from the 2022 World Cup in Qatar.
+
+Every participating nation will receive a guaranteed participation fee just for qualifying. But the real money comes from performance. Teams that advance through the group stage will earn additional bonuses.
+
+The further you go, the more you earn. Round of 16, quarter-finals, semi-finals, and of course, the final each come with increasing prize money.
+
+The winning nation will take home a staggering amount, making it the richest prize in football history. Individual awards will also be given, including the Golden Boot for top scorer, the Golden Ball for best player, and the Golden Glove for best goalkeeper.
+
+Beyond the prize money, there is something even more valuable at stake: legacy. Players dream of lifting that trophy since they were children. Nations unite behind their teams, and for one month, the whole world watches football.
+
+The 2026 World Cup promises to be the biggest sporting event ever. With 48 teams, 104 matches, and billions of viewers, this is where legends are made.
+
+Who do you think will lift the trophy? Comment below and subscribe for more World Cup content!""",
     },
 ]
 
 
-_EMOJI = re.compile(
-    "["
-    "\U0001F600-\U0001F64F"
-    "\U0001F300-\U0001F5FF"
-    "\U0001F680-\U0001F6FF"
-    "\U0001F1E0-\U0001F1FF"
-    "\U00002702-\U000027B0"
-    "\U000024C2-\U0001F251"
-    "\U0001f926-\U0001f937"
-    "\U00010000-\U0010ffff"
-    "\u2600-\u27BF"
-    "\u2B50\u200d\u23cf\u23e9\u231a\ufe0f\u3030"
-    "]+",
-    re.UNICODE,
-)
-
-
-def clean_text(text):
-    return _EMOJI.sub("", text).strip()
-
-
-def generate_script(match_text, stories):
+def generate_script(match_text="", stories=None):
     template = random.choice(TEMPLATES)
     date_str = datetime.now().strftime("%B %d, %Y")
 
-    intros = [
-        "Welcome back to Football Highlights Daily. Today is {date}, and we have massive World Cup 2026 news to share with you.",
-        "Hey there, football fans. It is {date}, and the World Cup 2026 excitement is building every single day. Here is what you need to know.",
-        "Good morning, everyone. {date} here, and we are bringing you the very latest from the FIFA World Cup 2026 and beyond.",
-        "What is going on, football fans? It is {date}, and we are here with your daily dose of World Cup 2026 updates and analysis.",
-        "Hello and welcome. Today is {date}, and we have got a packed show for you with all the latest World Cup 2026 developments.",
-    ]
-
-    body_parts = [random.choice(intros).format(date=date_str)]
+    script = template["script"].format(date=date_str)
 
     if match_text and "no matches" not in match_text.lower():
-        body_parts.append("Let us start with the latest matches and updates from around the world.")
-        body_parts.append(match_text)
+        parts = script.split("Subscribe")
+        if len(parts) == 2:
+            script = parts[0] + f"Before we go, here are the latest match results: {match_text} " + "Subscribe" + parts[1]
 
-    if stories:
-        body_parts.append("Now, let us move on to the breaking football news of the day.")
-        for i, s in enumerate(stories[:4], 1):
-            s_clean = clean_text(s)
-            if s_clean and len(s_clean) > 15:
-                body_parts.append(f"Story number {i}. {s_clean}")
-
-    outros = [
-        "So, what do you think about the World Cup 2026? Which team are you backing to go all the way? Let us know your thoughts in the comments below. And if you enjoyed this video, make sure to subscribe and hit that bell icon so you never miss an update.",
-        "The World Cup is going to be absolutely incredible this time around. Drop your predictions in the comments section and subscribe to our channel so you do not miss any of our World Cup coverage throughout the tournament.",
-        "That is all for today, folks. If you found this helpful, please give us a like, subscribe to the channel, and hit the notification bell. We will see you in the next video with more World Cup 2026 content. Take care.",
-    ]
-
-    body_parts.append(random.choice(outros))
-
-    script = " ".join(body_parts)
-    script = clean_text(script)
-    script = re.sub(r"\s+", " ", script).strip()
+    tags = ["worldcup2026", "fifa", "worldcup", "football", "soccer", "footballnews", "sports"]
+    extras = random.sample(["highlights", "footballhighlights", "worldcup2026", "fifaworldcup", "2026worldcup", "dailyfootball", "dailysoccer"], 5)
+    tags.extend(extras)
 
     return {
         "title": template["title"],
-        "description": template["description"],
-        "tags": template["tags"],
-        "hashtags": template["hashtags"],
+        "description": f"""{script[:200]}...
+
+SUBSCRIBE for daily World Cup 2026 coverage!
+LIKE to support the channel!
+COMMENT your predictions!
+
+#worldcup2026 #fifa #football #soccer #worldcup #footballnews #highlights #sports #football2026 #fifaworldcup""",
+        "tags": tags,
+        "hashtags": ["worldcup2026", "fifa", "football", "soccer", "worldcup"],
         "script": script,
     }
