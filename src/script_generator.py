@@ -81,34 +81,35 @@ def generate_script(match_text, stories):
     date_str = datetime.now().strftime("%B %d, %Y")
 
     intros = [
-        "Welcome back to Football Highlights Daily! Today is {date} and we have massive World Cup 2026 news to share.",
-        "Hey football fans! It's {date} and the World Cup 2026 excitement is building! Here's what you need to know.",
-        "Hello everyone! {date} here and we are bringing you the latest from the FIFA World Cup 2026 and beyond.",
-        "What's going on football fans! {date} and we are here with your daily dose of World Cup 2026 updates.",
+        "Welcome back to Football Highlights Daily. Today is {date}, and we have massive World Cup 2026 news to share with you.",
+        "Hey there, football fans. It is {date}, and the World Cup 2026 excitement is building every single day. Here is what you need to know.",
+        "Good morning, everyone. {date} here, and we are bringing you the very latest from the FIFA World Cup 2026 and beyond.",
+        "What is going on, football fans? It is {date}, and we are here with your daily dose of World Cup 2026 updates and analysis.",
+        "Hello and welcome. Today is {date}, and we have got a packed show for you with all the latest World Cup 2026 developments.",
     ]
 
     body_parts = [random.choice(intros).format(date=date_str)]
 
     if match_text and "no matches" not in match_text.lower():
-        body_parts.append("Latest matches and updates:")
+        body_parts.append("Let us start with the latest matches and updates from around the world.")
         body_parts.append(match_text)
 
     if stories:
-        body_parts.append("Breaking football news:")
+        body_parts.append("Now, let us move on to the breaking football news of the day.")
         for i, s in enumerate(stories[:4], 1):
             s_clean = clean_text(s)
             if s_clean and len(s_clean) > 15:
-                body_parts.append(f"{i}. {s_clean}")
+                body_parts.append(f"Story number {i}. {s_clean}")
 
     outros = [
-        "What do you think about the World Cup 2026? Which team are you supporting? Let us know in the comments! Subscribe and hit the bell for daily updates!",
-        "The World Cup is going to be incredible! Drop your predictions in the comments and subscribe so you don't miss any of our World Cup coverage!",
-        "Thanks for watching! Like, subscribe, and hit the bell for daily football and World Cup 2026 content. See you in the next video!",
+        "So, what do you think about the World Cup 2026? Which team are you backing to go all the way? Let us know your thoughts in the comments below. And if you enjoyed this video, make sure to subscribe and hit that bell icon so you never miss an update.",
+        "The World Cup is going to be absolutely incredible this time around. Drop your predictions in the comments section and subscribe to our channel so you do not miss any of our World Cup coverage throughout the tournament.",
+        "That is all for today, folks. If you found this helpful, please give us a like, subscribe to the channel, and hit the notification bell. We will see you in the next video with more World Cup 2026 content. Take care.",
     ]
 
     body_parts.append(random.choice(outros))
 
-    script = "\n\n".join(body_parts)
+    script = " ".join(body_parts)
     script = clean_text(script)
     script = re.sub(r"\s+", " ", script).strip()
 

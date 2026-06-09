@@ -34,10 +34,34 @@ def generate_voiceover(script_text, output_path):
     try:
         import edge_tts
         import asyncio
-        voices = ["en-US-GuyNeural", "en-US-JennyNeural", "en-GB-RyanNeural", "en-US-TonyNeural", "en-AU-WilliamNeural"]
-        voice = random.choice(voices)
+        import re
+
+        def _add_news_pauses(text):
+            text = re.sub(r'([.!?])\s+', r'\1 <break time="400ms"/> ', text)
+            text = re.sub(r'(:)\s+', r'\1 <break time="300ms"/> ', text)
+            text = re.sub(r'(,)\s+', r'\1 <break time="150ms"/> ', text)
+            return text
+
+        paused_text = _add_news_pauses(script_text)
+
+        news_voices = [
+            ("en-US-GuyNeural", "-5%", "+0Hz"),
+            ("en-US-ChristopherNeural", "-8%", "-2Hz"),
+            ("en-GB-RyanNeural", "-5%", "+0Hz"),
+        ]
+        voice, rate, pitch = random.choice(news_voices)
+
+        ssml = f"""<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="en-US">
+            <voice name="{voice}">
+                <prosody rate="{rate}" pitch="{pitch}" volume="+20%">
+                    <break time="500ms"/>
+                    {paused_text}
+                </prosody>
+            </voice>
+        </speak>"""
+
         async def _run():
-            tts = edge_tts.Communicate(script_text, voice=voice, rate="-2%", pitch="+0Hz", volume="+25%")
+            tts = edge_tts.Communicate(ssml, voice=voice, rate=rate, pitch=pitch, volume="+20%")
             await tts.save(output_path)
         asyncio.run(_run())
         if os.path.getsize(output_path) > 1000:
