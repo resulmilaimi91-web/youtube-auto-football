@@ -9,31 +9,53 @@ ANALYTICS_FILE = os.path.join(os.path.dirname(os.path.dirname(__file__)), "outpu
 def fetch_channel_analytics():
     try:
         from googleapiclient.discovery import build
+        from google.oauth2.credentials import Credentials
 
         api_key = os.environ.get("YOUTUBE_API_KEY", "")
         refresh_token = os.environ.get("YOUTUBE_REFRESH_TOKEN", "")
         client_id = os.environ.get("YOUTUBE_CLIENT_ID", "")
         client_secret = os.environ.get("YOUTUBE_CLIENT_SECRET", "")
+        channel_name = os.environ.get("CHANNEL_NAME", "")
 
         if not api_key:
             return None
 
-        youtube = build("youtube", "v3", developerKey=api_key)
+        credentials = None
+        if refresh_token and client_id and client_secret:
+            credentials = Credentials(
+                token=None,
+                refresh_token=refresh_token,
+                token_uri="https://oauth2.googleapis.com/token",
+                client_id=client_id,
+                client_secret=client_secret,
+            )
 
-        channel_response = youtube.channels().list(
-            part="statistics,snippet",
-            forUsername=os.environ.get("CHANNEL_NAME", "")
-        ).execute()
+        if credentials:
+            youtube = build("youtube", "v3", credentials=credentials)
+            channel_response = youtube.channels().list(
+                part="statistics,snippet",
+                mine=True
+            ).execute()
+        else:
+            youtube = build("youtube", "v3", developerKey=api_key)
+            if channel_name:
+                channel_response = youtube.channels().list(
+                    part="statistics,snippet",
+                    forUsername=channel_name
+                ).execute()
+            else:
+                return None
 
         if not channel_response.get("items"):
             return None
 
         channel = channel_response["items"][0]
         stats = channel["statistics"]
+        channel_id = channel["id"]
 
         videos_response = youtube.search().list(
             part="snippet",
-            channelId=channel["id"],
+            channelId=channel_id,
             order="date",
             maxResults=20,
             type="video"
@@ -42,22 +64,24 @@ def fetch_channel_analytics():
         videos = []
         for item in videos_response.get("items", []):
             video_id = item["id"]["videoId"]
-            video_stats = youtube.videos().list(
-                part="statistics",
-                id=video_id
-            ).execute()
+            try:
+                video_stats = youtube.videos().list(
+                    part="statistics",
+                    id=video_id
+                ).execute()
 
-            if video_stats.get("items"):
-                vs = video_stats["items"][0]["statistics"]
-                videos.append({
-                    "id": video_id,
-                    "title": item["snippet"]["title"],
-                    "published": item["snippet"]["publishedAt"],
-                    "views": int(vs.get("viewCount", 0)),
-                    "likes": int(vs.get("likeCount", 0)),
-                    "comments": int(vs.get("commentCount", 0)),
-                    "duration": vs.get("duration", "PT0S"),
-                })
+                if video_stats.get("items"):
+                    vs = video_stats["items"][0]["statistics"]
+                    videos.append({
+                        "id": video_id,
+                        "title": item["snippet"]["title"],
+                        "published": item["snippet"]["publishedAt"],
+                        "views": int(vs.get("viewCount", 0)),
+                        "likes": int(vs.get("likeCount", 0)),
+                        "comments": int(vs.get("commentCount", 0)),
+                    })
+            except Exception:
+                continue
 
         return {
             "channel": {
