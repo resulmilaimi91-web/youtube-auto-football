@@ -70,23 +70,52 @@ def _download_image(url, path):
     return False
 
 
-def download_football_images(count=5):
+def download_football_images(count=8):
     paths = []
     os.makedirs(Config.OUTPUT_DIR, exist_ok=True)
+
     queries = [
-        "football+stadium+night",
-        "soccer+players+action",
-        "world+cup+trophy+gold",
-        "football+fans+celebration",
-        "soccer+goal+net+ball",
+        "football+stadium+night+lights",
+        "soccer+players+action+match",
+        "world+cup+trophy+gold+championship",
+        "football+fans+celebration+stadium",
+        "soccer+goal+net+ball+score",
+        "football+field+green+pitch",
+        "soccer+boots+ball+grass",
+        "football+stadium+panoramic+view",
+        "soccer+player+kicking+ball",
+        "football+champions+league+night",
+        "soccer+referee+whistle+match",
+        "football+scoreboard+stadium",
     ]
-    for i in range(min(count, len(queries))):
-        path = os.path.join(Config.OUTPUT_DIR, f"scene_{i}.jpg")
-        ok = _download_image(f"https://source.unsplash.com/1920x1080/?{queries[i]}&sig={random.randint(1,99999)}", path)
-        if not ok:
-            ok = _download_image(f"https://picsum.photos/1920/1080?random={random.randint(1,99999)}", path)
-        if ok:
-            paths.append(path)
+
+    sources = [
+        "https://source.unsplash.com/1920x1080/?{q}&sig={s}",
+        "https://picsum.photos/1920/1080?random={s}",
+        "https://loremflickr.com/1920/1080/{q}",
+    ]
+
+    used = set()
+    for i in range(min(count * 2, len(queries))):
+        if len(paths) >= count:
+            break
+        q = queries[i % len(queries)]
+        sig = random.randint(1, 999999)
+        path = os.path.join(Config.OUTPUT_DIR, f"scene_{len(paths)}.jpg")
+
+        ok = False
+        for src in sources:
+            url = src.format(q=q, s=sig)
+            ok = _download_image(url, path)
+            if ok:
+                fsize = os.path.getsize(path)
+                if fsize > 10000:
+                    paths.append(path)
+                    break
+                else:
+                    os.remove(path)
+                    ok = False
+
     return paths
 
 
@@ -238,7 +267,7 @@ def create_video(script_data, output_path, style=None):
     print("  Generating outro...")
     outro_clip = VideoFileClip(create_tv_outro(OUTRO_PATH, duration=3))
 
-    img_paths = download_football_images(5)
+    img_paths = download_football_images(8)
     scenes = []
     if img_paths:
         seg_dur = main_duration / len(img_paths)
