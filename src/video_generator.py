@@ -516,24 +516,6 @@ def create_thumbnail(title, output_path, style=None):
 
     bg.save(output_path, quality=95)
     return output_path
-        bg.paste(badge, (W // 2 - 120, H - 90), badge)
-        b_draw = ImageDraw.Draw(bg)
-        b_draw.text((W // 2 - 85, H - 82), "SUBSCRIBE", fill=(255, 255, 255), font=small_font)
-
-    logo_path = os.path.join(Config.OUTPUT_DIR, "logo.png")
-    if not os.path.exists(logo_path):
-        create_logo(logo_path)
-    try:
-        logo = Image.open(logo_path).resize((60, 60))
-        bg.paste(logo, (W - 80, 10), logo)
-    except Exception:
-        pass
-
-    draw2 = ImageDraw.Draw(bg)
-    draw2.text((W - 180, 80), "FHD", fill=(255, 255, 255, 150), font=logo_font)
-
-    bg.save(output_path, quality=92)
-    return output_path
 
 
 def create_video(script_data, output_path, style=None):
