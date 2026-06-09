@@ -149,40 +149,31 @@ def create_banner(output_path):
 
 
 def create_profile_pic(output_path):
-    W, H = 800, 800
-    img = Image.new("RGB", (W, H), (0, 50, 120))
-    draw = ImageDraw.Draw(img)
-
-    draw.rectangle([0, 0, W, H], fill=(0, 50, 120))
-
-    for r in range(380, 0, -1):
-        ratio = r / 380
-        cr = int(0 + (10 - 0) * ratio)
-        cg = int(50 + (15 - 50) * ratio)
-        cb = int(120 + (35 - 120) * ratio)
-        draw.ellipse([W // 2 - r, H // 2 - r, W // 2 + r, H // 2 + r], fill=(cr, cg, cb))
-
-    draw.ellipse([W // 2 - 300, H // 2 - 300, W // 2 + 300, H // 2 + 300], fill=(0, 40, 100))
-    draw.ellipse([W // 2 - 280, H // 2 - 280, W // 2 + 280, H // 2 + 280], outline=(255, 215, 0), width=8)
-
-    font_huge = _get_font(180)
-    font_big = _get_font(100)
-
-    bbox = draw.textbbox((0, 0), "FH", font=font_huge)
-    tw = bbox[2] - bbox[0]
-    draw.text((W // 2 - tw // 2, H // 2 - 130), "FH", fill=(255, 215, 0), font=font_huge)
-
-    bbox2 = draw.textbbox((0, 0), "2026", font=font_big)
-    tw2 = bbox2[2] - bbox2[0]
-    draw.text((W // 2 - tw2 // 2, H // 2 + 60), "2026", fill="white", font=font_big)
-
-    draw.rectangle([0, 0, W, 10], fill=(255, 215, 0))
-    draw.rectangle([0, H - 10, W, H], fill=(255, 215, 0))
-    draw.rectangle([0, 0, 10, H], fill=(255, 215, 0))
-    draw.rectangle([W - 10, 0, W, H], fill=(255, 215, 0))
-
-    img.save(output_path, quality=95)
-    print(f"  Profile pic saved: {output_path}")
+    sizes = [(800, 800, output_path), (150, 150, output_path.replace(".png", "_150.png"))]
+    for W, H, path in sizes:
+        img = Image.new("RGB", (W, H), (0, 50, 120))
+        draw = ImageDraw.Draw(img)
+        draw.rectangle([0, 0, W, H], fill=(0, 50, 120))
+        border = max(2, W // 50)
+        draw.ellipse([border, border, W - border, H - border], fill=(0, 40, 100))
+        draw.ellipse([border + 4, border + 4, W - border - 4, H - border - 4], outline=(255, 215, 0), width=max(2, W // 100))
+        font_size = max(20, int(W * 0.28))
+        font_huge = _get_font(font_size)
+        bbox = draw.textbbox((0, 0), "FH", font=font_huge)
+        tw = bbox[2] - bbox[0]
+        draw.text((W // 2 - tw // 2, int(H * 0.25)), "FH", fill=(255, 215, 0), font=font_huge)
+        font_year = max(14, int(W * 0.16))
+        font_small = _get_font(font_year)
+        bbox2 = draw.textbbox((0, 0), "2026", font=font_small)
+        tw2 = bbox2[2] - bbox2[0]
+        draw.text((W // 2 - tw2 // 2, int(H * 0.6)), "2026", fill="white", font=font_small)
+        gold = max(1, W // 80)
+        draw.rectangle([0, 0, W, gold], fill=(255, 215, 0))
+        draw.rectangle([0, H - gold, W, H], fill=(255, 215, 0))
+        draw.rectangle([0, 0, gold, H], fill=(255, 215, 0))
+        draw.rectangle([W - gold, 0, W, H], fill=(255, 215, 0))
+        img.save(path, quality=95)
+        print(f"  Profile pic saved: {path}")
     return output_path
 
 
