@@ -4,6 +4,7 @@ import random
 import traceback
 import sys
 import urllib.request
+import math
 
 from moviepy import (
     VideoFileClip, ColorClip, TextClip, AudioFileClip,
@@ -83,8 +84,8 @@ def generate_voiceover(script_text, output_path):
 
 def _download_image(url, path):
     try:
-        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
-        data = urllib.request.urlopen(req, timeout=10).read()
+        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"})
+        data = urllib.request.urlopen(req, timeout=15).read()
         if len(data) > 5000:
             with open(path, "wb") as f:
                 f.write(data)
@@ -92,6 +93,105 @@ def _download_image(url, path):
     except Exception:
         pass
     return False
+
+
+def _create_football_placeholder(output_path, scene_type="stadium"):
+    W, H = 1920, 1080
+    img = Image.new("RGB", (W, H))
+    draw = ImageDraw.Draw(img)
+
+    gradients = {
+        "stadium": ((0, 20, 80), (0, 100, 200)),
+        "action": ((0, 80, 0), (50, 200, 50)),
+        "trophy": ((100, 60, 0), (255, 200, 0)),
+        "fans": ((80, 0, 80), (200, 50, 150)),
+        "goal": ((0, 60, 0), (0, 180, 0)),
+        "night": ((10, 10, 40), (30, 50, 120)),
+    }
+    c1, c2 = gradients.get(scene_type, gradients["stadium"])
+
+    for y in range(H):
+        ratio = y / H
+        r = int(c1[0] + (c2[0] - c1[0]) * ratio)
+        g = int(c1[1] + (c2[1] - c1[1]) * ratio)
+        b = int(c1[2] + (c2[2] - c1[2]) * ratio)
+        draw.line([(0, y), (W, y)], fill=(r, g, b))
+
+    for i in range(50):
+        x = random.randint(0, W)
+        y = random.randint(0, H)
+        size = random.randint(2, 6)
+        alpha = random.randint(100, 255)
+        draw.ellipse([x - size, y - size, x + size, y + size], fill=(255, 255, 255))
+
+    if scene_type == "stadium":
+        for x in range(0, W, 100):
+            h = random.randint(300, 700)
+            color = random.choice([(20, 40, 80), (30, 50, 100), (40, 60, 120)])
+            draw.rectangle([x, H - h, x + 80, H], fill=color)
+            for yy in range(H - h, H, 40):
+                draw.rectangle([x + 8, yy + 8, x + 72, yy + 32], fill=(60, 140, 220))
+                draw.ellipse([x + 30, yy + 12, x + 50, yy + 28], fill=(255, 200, 50))
+        draw.ellipse([W // 2 - 400, H // 2 - 150, W // 2 + 400, H // 2 + 150], fill=(20, 100, 20))
+        draw.ellipse([W // 2 - 380, H // 2 - 130, W // 2 + 380, H // 2 + 130], outline=(255, 255, 255), width=4)
+        draw.line([(W // 2, H // 2 - 130), (W // 2, H // 2 + 130)], fill=(255, 255, 255), width=3)
+        draw.ellipse([W // 2 - 50, H // 2 - 50, W // 2 + 50, H // 2 + 50], outline=(255, 255, 255), width=3)
+        font = _get_font(120)
+        draw.text((W // 2 - 200, 50), "STADIUM", fill=(255, 215, 0), font=font)
+    elif scene_type == "action":
+        draw.ellipse([W // 2 - 150, H // 2 - 150, W // 2 + 150, H // 2 + 150], fill=(255, 255, 255))
+        draw.ellipse([W // 2 - 130, H // 2 - 130, W // 2 + 130, H // 2 + 130], fill=(0, 0, 0))
+        for i in range(12):
+            angle = i * 30
+            x1 = W // 2 + int(100 * math.cos(math.radians(angle)))
+            y1 = H // 2 + int(100 * math.sin(math.radians(angle)))
+            x2 = W // 2 + int(130 * math.cos(math.radians(angle)))
+            y2 = H // 2 + int(130 * math.sin(math.radians(angle)))
+            draw.line([(x1, y1), (x2, y2)], fill=(255, 255, 255), width=6)
+        draw.ellipse([W // 2 - 40, H // 2 - 40, W // 2 + 40, H // 2 + 40], fill=(255, 255, 255))
+        font = _get_font(120)
+        draw.text((W // 2 - 180, 50), "ACTION!", fill=(255, 50, 50), font=font)
+    elif scene_type == "trophy":
+        cx, cy = W // 2, H // 2
+        for r in range(250, 0, -5):
+            ratio = r / 250
+            cr = int(255 * ratio)
+            cg = int(215 * ratio)
+            cb = int(0 * ratio)
+            draw.ellipse([cx - r, cy - r, cx + r, cy + r], fill=(cr, cg, cb))
+        draw.rectangle([cx - 50, cy - 180, cx + 50, cy + 80], fill=(255, 215, 0))
+        draw.ellipse([cx - 100, cy - 250, cx + 100, cy - 100], fill=(255, 215, 0))
+        draw.ellipse([cx - 70, cy - 220, cx + 70, cy - 130], fill=(200, 170, 0))
+        draw.rectangle([cx - 80, cy + 80, cx + 80, cy + 120], fill=(255, 215, 0))
+        draw.rectangle([cx - 130, cy + 120, cx + 130, cy + 160], fill=(255, 215, 0))
+        font = _get_font(120)
+        draw.text((W // 2 - 200, 50), "TROPHY!", fill=(255, 255, 255), font=font)
+    elif scene_type == "fans":
+        for i in range(500):
+            x = random.randint(0, W)
+            y = random.randint(H // 3, H)
+            size = random.randint(8, 20)
+            color = random.choice([(255, 50, 50), (50, 255, 50), (50, 50, 255), (255, 255, 0), (255, 255, 255)])
+            draw.ellipse([x - size, y - size, x + size, y + size], fill=color)
+        font = _get_font(120)
+        draw.text((W // 2 - 250, 50), "FANS!", fill=(255, 255, 255), font=font)
+    elif scene_type == "goal":
+        draw.rectangle([W // 2 - 250, H // 2 - 200, W // 2 + 250, H // 2 + 200], fill=(255, 255, 255))
+        draw.rectangle([W // 2 - 230, H // 2 - 180, W // 2 + 230, H // 2 + 180], fill=(0, 120, 0))
+        draw.line([(W // 2 - 230, H // 2 - 180), (W // 2 + 230, H // 2 - 180)], fill=(255, 255, 255), width=10)
+        draw.line([(W // 2 - 230, H // 2 - 180), (W // 2 - 230, H // 2 + 180)], fill=(255, 255, 255), width=10)
+        draw.line([(W // 2 + 230, H // 2 - 180), (W // 2 + 230, H // 2 + 180)], fill=(255, 255, 255), width=10)
+        draw.ellipse([W // 2 - 40, H // 2 - 40, W // 2 + 40, H // 2 + 40], fill=(255, 255, 255))
+        font = _get_font(120)
+        draw.text((W // 2 - 150, 50), "GOAL!", fill=(255, 215, 0), font=font)
+
+    draw.rectangle([0, 0, W, 6], fill=(255, 0, 0))
+    draw.rectangle([0, H - 6, W, H], fill=(255, 0, 0))
+    draw.rectangle([0, 0, 6, H], fill=(255, 215, 0))
+    draw.rectangle([W - 6, 0, W, H], fill=(255, 215, 0))
+
+    img.save(output_path, quality=92)
+    return output_path
 
 
 def _make_zoom_clip(img_path, duration, W, H, zoom_type="in"):
@@ -248,26 +348,32 @@ def download_football_images(count=8, title=""):
         "https://loremflickr.com/1920/1080/{q}",
     ]
 
-    used = set()
-    for i in range(min(count * 2, len(queries))):
-        if len(paths) >= count:
-            break
-        q = queries[i % len(queries)]
-        sig = random.randint(1, 999999)
-        path = os.path.join(Config.OUTPUT_DIR, f"scene_{len(paths)}.jpg")
+    scene_types = ["stadium", "action", "trophy", "fans", "goal", "night", "stadium", "action"]
 
+    for i in range(count):
+        path = os.path.join(Config.OUTPUT_DIR, f"scene_{i}.jpg")
         ok = False
-        for src in sources:
+
+        for src_idx, src in enumerate(sources):
+            q = queries[i % len(queries)]
+            sig = random.randint(1, 999999)
             url = src.format(q=q, s=sig)
             ok = _download_image(url, path)
             if ok:
                 fsize = os.path.getsize(path)
                 if fsize > 10000:
-                    paths.append(path)
                     break
                 else:
                     os.remove(path)
                     ok = False
+
+        if not ok:
+            scene_type = scene_types[i % len(scene_types)]
+            _create_football_placeholder(path, scene_type)
+            ok = True
+
+        if ok and os.path.exists(path):
+            paths.append(path)
 
     return paths
 
@@ -276,12 +382,12 @@ def _make_gradient_bg(W, H, style=0):
     img = Image.new("RGB", (W, H))
     draw = ImageDraw.Draw(img)
     colors = [
-        ((10, 15, 35), (20, 40, 80)),
-        ((25, 10, 10), (60, 15, 15)),
-        ((10, 25, 10), (15, 60, 15)),
-        ((20, 15, 30), (40, 20, 60)),
-        ((15, 20, 30), (30, 45, 70)),
-        ((0, 30, 60), (0, 60, 120)),
+        ((0, 20, 80), (0, 100, 200)),
+        ((100, 0, 0), (200, 30, 30)),
+        ((0, 60, 0), (0, 150, 0)),
+        ((80, 0, 80), (180, 30, 150)),
+        ((60, 40, 0), (180, 120, 0)),
+        ((0, 40, 80), (0, 120, 200)),
     ]
     c1, c2 = colors[style % len(colors)]
     for y in range(H):
@@ -304,74 +410,112 @@ def create_thumbnail(title, output_path, style=None):
     bg = _make_gradient_bg(W, H, style_idx)
     draw = ImageDraw.Draw(bg)
 
+    for i in range(30):
+        x = random.randint(0, W)
+        y = random.randint(0, H)
+        size = random.randint(20, 80)
+        color = random.choice([(255, 215, 0, 80), (255, 50, 50, 60), (50, 255, 50, 50)])
+        draw.ellipse([x - size, y - size, x + size, y + size], fill=color[:3])
+
     overlay = Image.new("RGBA", (W, H), (0, 0, 0, 0))
     od = ImageDraw.Draw(overlay)
 
     if style == "breaking":
-        od.rectangle([0, 0, W, 90], fill=(255, 0, 0, 240))
-        od.rectangle([0, H - 70, W, H], fill=(0, 0, 0, 200))
+        od.rectangle([0, 0, W, 120], fill=(255, 0, 0, 250))
+        od.rectangle([0, H - 90, W, H], fill=(0, 0, 0, 220))
+        for i in range(5):
+            od.line([(0, 120 + i * 2), (W, 120 + i * 2)], fill=(255, 215, 0, 200))
     elif style == "sports":
-        od.rectangle([0, H - 100, W, H], fill=(0, 0, 0, 200))
-        od.rectangle([0, 0, 10, H], fill=(255, 200, 0, 200))
+        od.rectangle([0, H - 120, W, H], fill=(0, 0, 0, 220))
+        od.rectangle([0, 0, 15, H], fill=(255, 200, 0, 250))
+        od.rectangle([W - 15, 0, W, H], fill=(255, 200, 0, 250))
     elif style == "worldcup":
-        od.rectangle([0, 0, W, 80], fill=(0, 50, 120, 230))
-        od.rectangle([0, H - 80, W, H], fill=(0, 50, 120, 230))
-    elif style == "analysis":
-        od.rectangle([0, 0, W, 60], fill=(20, 20, 20, 220))
-        od.rectangle([0, H - 50, W, H], fill=(20, 20, 20, 220))
-    elif style == "news":
-        od.rectangle([0, 0, W, 100], fill=(200, 30, 30, 240))
-        od.rectangle([0, H - 60, W, H], fill=(0, 0, 0, 220))
-    elif style == "premium":
-        od.rectangle([0, 0, W, 70], fill=(30, 30, 30, 220))
-        od.rectangle([0, H - 70, W, H], fill=(30, 30, 30, 220))
+        od.rectangle([0, 0, W, 100], fill=(0, 50, 120, 240))
+        od.rectangle([0, H - 100, W, H], fill=(0, 50, 120, 240))
         for i in range(3):
-            od.line([(0, 70 + i), (W, 70 + i)], fill=(255, 215, 0, 150))
-            od.line([(0, H - 73 + i), (W, H - 73 + i)], fill=(255, 215, 0, 150))
+            od.line([(0, 100 + i), (W, 100 + i)], fill=(255, 215, 0, 200))
+            od.line([(0, H - 103 + i), (W, H - 103 + i)], fill=(255, 215, 0, 200))
+    elif style == "analysis":
+        od.rectangle([0, 0, W, 80], fill=(20, 20, 20, 240))
+        od.rectangle([0, H - 70, W, H], fill=(20, 20, 20, 240))
+    elif style == "news":
+        od.rectangle([0, 0, W, 120], fill=(200, 30, 30, 250))
+        od.rectangle([0, H - 80, W, H], fill=(0, 0, 0, 240))
+        for i in range(3):
+            od.line([(0, 120 + i), (W, 120 + i)], fill=(255, 255, 255, 150))
+    elif style == "premium":
+        od.rectangle([0, 0, W, 90], fill=(30, 30, 30, 240))
+        od.rectangle([0, H - 90, W, H], fill=(30, 30, 30, 240))
+        for i in range(4):
+            od.line([(0, 90 + i), (W, 90 + i)], fill=(255, 215, 0, 200))
+            od.line([(0, H - 94 + i), (W, H - 94 + i)], fill=(255, 215, 0, 200))
     else:
-        od.rectangle([0, 380, W, H], fill=(0, 0, 0, 180))
+        od.rectangle([0, 350, W, H], fill=(0, 0, 0, 200))
 
     bg = Image.alpha_composite(bg.convert("RGBA"), overlay).convert("RGB")
     draw = ImageDraw.Draw(bg)
 
-    font = _get_font(54)
-    small_font = _get_font(26)
-    logo_font = _get_font(20)
+    font_huge = _get_font(72)
+    font_big = _get_font(48)
+    font_small = _get_font(32)
+    logo_font = _get_font(24)
 
-    lines = textwrap.wrap(title, width=18)
-    y = 140
+    lines = textwrap.wrap(title, width=20)
+    y = 160
     for line in lines[:3]:
-        bbox = draw.textbbox((0, 0), line, font=font)
+        bbox = draw.textbbox((0, 0), line, font=font_huge)
         tw = bbox[2] - bbox[0]
         x = (W - tw) // 2
-        draw.text((x + 2, y + 2), line, fill=(0, 0, 0), font=font)
-        draw.text((x, y), line, fill=(255, 255, 255), font=font)
-        y += 68
+        draw.text((x + 4, y + 4), line, fill=(0, 0, 0), font=font_huge)
+        draw.text((x + 2, y + 2), line, fill=(255, 0, 0), font=font_huge)
+        draw.text((x, y), line, fill=(255, 255, 255), font=font_huge)
+        y += 82
 
     if style == "breaking":
-        draw.rectangle([0, 0, W, 90], fill=(255, 0, 0))
-        draw.text((W // 2 - 120, 28), "BREAKING NEWS", fill=(255, 255, 255), font=_get_font(38))
-        draw.rectangle([0, H - 70, W, H], fill=(0, 0, 0))
-        draw.text((W // 2 - 100, H - 50), "SUBSCRIBE NOW", fill=(255, 255, 255), font=small_font)
+        draw.rectangle([0, 0, W, 120], fill=(255, 0, 0))
+        draw.rectangle([0, 0, W, 120], outline=(255, 215, 0), width=4)
+        draw.text((W // 2 - 180, 30), "BREAKING NEWS", fill=(255, 255, 255), font=_get_font(52))
+        draw.rectangle([0, H - 90, W, H], fill=(0, 0, 0))
+        draw.text((W // 2 - 120, H - 65), "SUBSCRIBE NOW!", fill=(255, 215, 0), font=font_big)
     elif style == "worldcup":
-        draw.rectangle([0, 0, W, 80], fill=(0, 50, 120))
-        draw.text((W // 2 - 140, 20), "FIFA WORLD CUP 2026", fill=(255, 215, 0), font=_get_font(34))
-        draw.rectangle([0, H - 80, W, H], fill=(0, 50, 120))
-        draw.text((W // 2 - 80, H - 55), "SUBSCRIBE NOW", fill=(255, 255, 255), font=small_font)
+        draw.rectangle([0, 0, W, 100], fill=(0, 50, 120))
+        draw.rectangle([0, 0, W, 100], outline=(255, 215, 0), width=4)
+        draw.text((W // 2 - 220, 20), "FIFA WORLD CUP 2026", fill=(255, 215, 0), font=_get_font(48))
+        draw.rectangle([0, H - 100, W, H], fill=(0, 50, 120))
+        draw.text((W // 2 - 100, H - 70), "SUBSCRIBE NOW!", fill=(255, 255, 255), font=font_big)
     elif style == "news":
-        draw.rectangle([0, 0, W, 100], fill=(200, 30, 30))
-        draw.text((40, 30), "LIVE", fill=(255, 255, 255), font=_get_font(40))
-        draw.text((W // 2 - 100, 35), "FOOTBALL NEWS", fill=(255, 255, 255), font=_get_font(32))
-        draw.rectangle([0, H - 60, W, H], fill=(0, 0, 0))
-        draw.text((W // 2 - 80, H - 45), "SUBSCRIBE NOW", fill=(255, 255, 255), font=small_font)
+        draw.rectangle([0, 0, W, 120], fill=(200, 30, 30))
+        draw.rectangle([0, 0, W, 120], outline=(255, 255, 255), width=3)
+        draw.text((40, 25), "LIVE", fill=(255, 255, 255), font=_get_font(56))
+        draw.text((W // 2 - 150, 30), "FOOTBALL NEWS", fill=(255, 255, 255), font=_get_font(44))
+        draw.rectangle([0, H - 80, W, H], fill=(0, 0, 0))
+        draw.text((W // 2 - 120, H - 55), "SUBSCRIBE NOW!", fill=(255, 215, 0), font=font_big)
     elif style == "premium":
-        draw.rectangle([0, 0, W, 70], fill=(30, 30, 30))
-        draw.text((40, 18), "FHD", fill=(255, 215, 0), font=_get_font(30))
-        draw.text((100, 22), "PREMIUM", fill=(255, 255, 255), font=small_font)
-        draw.rectangle([0, H - 70, W, H], fill=(30, 30, 30))
-        draw.text((W // 2 - 80, H - 50), "SUBSCRIBE NOW", fill=(255, 255, 255), font=small_font)
+        draw.rectangle([0, 0, W, 90], fill=(30, 30, 30))
+        draw.text((40, 20), "FHD", fill=(255, 215, 0), font=_get_font(42))
+        draw.text((130, 25), "PREMIUM", fill=(255, 255, 255), font=font_big)
+        draw.rectangle([0, H - 90, W, H], fill=(30, 30, 30))
+        draw.text((W // 2 - 100, H - 60), "SUBSCRIBE NOW!", fill=(255, 215, 0), font=font_big)
     else:
-        badge = Image.new("RGBA", (240, 50), (255, 0, 0, 255))
+        badge = Image.new("RGBA", (280, 60), (255, 0, 0, 255))
+        bd = ImageDraw.Draw(badge)
+        bd.text((20, 10), "SUBSCRIBE", fill=(255, 255, 255), font=font_big)
+        bg.paste(badge, (W // 2 - 140, H - 100), badge)
+
+    logo_path = os.path.join(Config.OUTPUT_DIR, "logo.png")
+    if not os.path.exists(logo_path):
+        create_logo(logo_path)
+    try:
+        logo = Image.open(logo_path).resize((80, 80))
+        bg.paste(logo, (W - 100, 10), logo)
+    except Exception:
+        pass
+
+    draw2 = ImageDraw.Draw(bg)
+    draw2.text((W - 220, 100), "FHD", fill=(255, 215, 0), font=logo_font)
+
+    bg.save(output_path, quality=95)
+    return output_path
         bg.paste(badge, (W // 2 - 120, H - 90), badge)
         b_draw = ImageDraw.Draw(bg)
         b_draw.text((W // 2 - 85, H - 82), "SUBSCRIBE", fill=(255, 255, 255), font=small_font)
