@@ -1,6 +1,8 @@
 import os
 import random
-from PIL import Image, ImageDraw, ImageFont
+import urllib.request
+import io
+from PIL import Image, ImageDraw, ImageFont, ImageFilter, ImageEnhance
 from moviepy import (
     ImageClip, AudioFileClip, concatenate_videoclips
 )
@@ -18,6 +20,46 @@ def _get_font(size):
         if os.path.exists(path):
             return ImageFont.truetype(path, size)
     return ImageFont.load_default()
+
+
+def _download_image(url, fallback_color=(255, 0, 0)):
+    try:
+        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+        data = urllib.request.urlopen(req, timeout=10).read()
+        return Image.open(io.BytesIO(data)).convert("RGB")
+    except Exception:
+        img = Image.new("RGB", (1080, 1920), fallback_color)
+        draw = ImageDraw.Draw(img)
+        for y in range(1920):
+            ratio = y / 1920
+            r = int(fallback_color[0] * (1 - ratio * 0.3))
+            g = int(fallback_color[1] * (1 - ratio * 0.3))
+            b = int(fallback_color[2] * (1 - ratio * 0.3))
+            draw.line([(0, y), (1080, y)], fill=(r, g, b))
+        return img
+
+
+def _get_short_images(theme_idx):
+    image_queries = [
+        [
+            "https://images.unsplash.com/photo-1522778119026-d647f0596c20?w=1080&h=1920&fit=crop",
+            "https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=1080&h=1920&fit=crop",
+            "https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=1080&h=1920&fit=crop",
+            "https://images.unsplash.com/photo-1431324155629-1a6deb1dec8d?w=1080&h=1920&fit=crop",
+        ],
+        [
+            "https://images.unsplash.com/photo-1579952363873-27f3bade9f55?w=1080&h=1920&fit=crop",
+            "https://images.unsplash.com/photo-1553778263-73a83bab9b0c?w=1080&h=1920&fit=crop",
+            "https://images.unsplash.com/photo-1560272564-c83b66b1ad12?w=1080&h=1920&fit=crop",
+            "https://images.unsplash.com/photo-1489944440615-453fc2b6a9a9?w=1080&h=1920&fit=crop",
+        ],
+    ]
+    urls = image_queries[theme_idx % len(image_queries)]
+    images = []
+    for url in urls:
+        img = _download_image(url)
+        images.append(img)
+    return images
 
 
 VIRAL_SHORTS = [
@@ -40,62 +82,85 @@ VIRAL_SHORTS = [
 ]
 
 
-def _create_viral_frame(W, H, theme, hook_text, part=0):
-    img = Image.new("RGB", (W, H))
+def _create_viral_frame_with_image(W, H, theme, hook_text, bg_image, part=0):
+    img = bg_image.copy()
+    img = img.resize((W, H), Image.LANCZOS)
+
+    enhancer = ImageEnhance.Brightness(img)
+    img = enhancer.enhance(0.4)
+
+    img = img.filter(ImageFilter.GaussianBlur(radius=3))
+
     draw = ImageDraw.Draw(img)
-    c1, c2 = theme["bg"]
 
-    for y in range(H):
-        ratio = y / H
-        r = int(c1[0] + (c2[0] - c1[0]) * ratio)
-        g = int(c1[1] + (c2[1] - c1[1]) * ratio)
-        b = int(c1[2] + (c2[2] - c1[2]) * ratio)
-        draw.line([(0, y), (W, y)], fill=(r, g, b))
+    overlay = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    ov_draw = ImageDraw.Draw(overlay)
 
-    for i in range(60):
-        x = random.randint(0, W)
-        y = random.randint(0, H)
-        size = random.randint(1, 4)
-        brightness = random.randint(150, 255)
-        draw.ellipse([x - size, y - size, x + size, y + size], fill=(brightness, brightness, brightness))
+    for i in range(3):
+        y_start = 150 + i * 220
+        ov_draw.rectangle([0, y_start, W, y_start + 180], fill=(0, 0, 0, 160))
 
-    font_hook = _get_font(100)
+    img = Image.alpha_composite(img.convert("RGBA"), overlay).convert("RGB")
+    draw = ImageDraw.Draw(img)
+
+    font_hook = _get_font(90)
     font_big = _get_font(72)
     font_med = _get_font(48)
+    font_small = _get_font(36)
 
     hook_y = 200
     bbox = draw.textbbox((0, 0), hook_text, font=font_hook)
     tw = bbox[2] - bbox[0]
-    draw.text((W // 2 - tw // 2 + 5, hook_y + 5), hook_text, fill=(0, 0, 0), font=font_hook)
+    draw.text((W // 2 - tw // 2 + 3, hook_y + 3), hook_text, fill=(0, 0, 0), font=font_hook)
     draw.text((W // 2 - tw // 2, hook_y), hook_text, fill=theme["accent"], font=font_hook)
 
     if part == 0:
-        cx, cy = W // 2, H // 2
-        draw.ellipse([cx - 150, cy - 150, cx + 150, cy + 150], fill=(255, 255, 255))
-        draw.polygon([(cx - 50, cy - 80), (cx - 50, cy + 80), (cx + 80, cy)], fill=theme["accent"])
+        cx, cy = W // 2, H // 2 + 100
+        draw.ellipse([cx - 120, cy - 120, cx + 120, cy + 120], fill=(0, 0, 0, 180) if img.mode == "RGBA" else (0, 0, 0))
+        draw.ellipse([cx - 115, cy - 115, cx + 115, cy + 115], outline=theme["accent"], width=4)
+        draw.polygon([(cx - 40, cy - 60), (cx - 40, cy + 60), (cx + 60, cy)], fill=theme["accent"])
 
-        draw.rectangle([80, H - 400, W - 80, H - 280], fill=(0, 0, 0))
-        draw.rectangle([80, H - 400, W - 80, H - 280], outline=theme["accent"], width=4)
-        draw.text((W // 2 - 250, H - 380), "SUBSCRIBE NOW!", fill=theme["accent"], font=font_big)
+        draw.rectangle([60, H - 380, W - 60, H - 260], fill=(0, 0, 0))
+        draw.rectangle([60, H - 380, W - 60, H - 260], outline=theme["accent"], width=4)
+        bbox_sub = draw.textbbox((0, 0), "SUBSCRIBE NOW!", font=font_big)
+        tw_sub = bbox_sub[2] - bbox_sub[0]
+        draw.text((W // 2 - tw_sub // 2, H - 360), "SUBSCRIBE NOW!", fill=theme["accent"], font=font_big)
+
+        stats = [("48", "TEAMS"), ("104", "MATCHES"), ("5B+", "VIEWERS")]
+        for i, (num, label) in enumerate(stats):
+            x = 180 + i * 270
+            y = H // 2 + 300
+            draw.rectangle([x - 80, y - 40, x + 80, y + 40], fill=(0, 0, 0))
+            draw.rectangle([x - 80, y - 40, x + 80, y + 40], outline=theme["accent"], width=2)
+            bbox_n = draw.textbbox((0, 0), num, font=font_med)
+            tw_n = bbox_n[2] - bbox_n[0]
+            draw.text((x - tw_n // 2, y - 30), num, fill=theme["accent"], font=font_med)
+            bbox_l = draw.textbbox((0, 0), label, font=font_small)
+            tw_l = bbox_l[2] - bbox_l[0]
+            draw.text((x - tw_l // 2, y + 10), label, fill=(255, 255, 255), font=font_small)
+
     elif part == 1:
         numbers = ["48", "104", "39", "82K"]
         labels = ["TEAMS", "MATCHES", "DAYS", "FANS"]
         for i, (num, label) in enumerate(zip(numbers, labels)):
             x = 135 + i * 270
-            draw.ellipse([x - 80, H // 2 - 80, x + 80, H // 2 + 80], fill=(0, 0, 0))
-            draw.ellipse([x - 75, H // 2 - 75, x + 75, H // 2 + 75], outline=theme["accent"], width=3)
+            y_center = H // 2
+            draw.ellipse([x - 70, y_center - 70, x + 70, y_center + 70], fill=(0, 0, 0))
+            draw.ellipse([x - 65, y_center - 65, x + 65, y_center + 65], outline=theme["accent"], width=3)
             bbox_n = draw.textbbox((0, 0), num, font=font_big)
             tw_n = bbox_n[2] - bbox_n[0]
-            draw.text((x - tw_n // 2, H // 2 - 40), num, fill=theme["accent"], font=font_big)
+            draw.text((x - tw_n // 2, y_center - 35), num, fill=theme["accent"], font=font_big)
             bbox_l = draw.textbbox((0, 0), label, font=font_med)
             tw_l = bbox_l[2] - bbox_l[0]
-            draw.text((x - tw_l // 2, H // 2 + 50), label, fill=theme["text"], font=font_med)
+            draw.text((x - tw_l // 2, y_center + 45), label, fill=theme["text"], font=font_med)
 
-        draw.rectangle([80, H - 300, W - 80, H - 200], fill=(255, 0, 0))
-        draw.text((W // 2 - 200, H - 285), "LIKE & SHARE!", fill=(255, 255, 255), font=font_big)
+        draw.rectangle([60, H - 300, W - 60, H - 200], fill=(255, 0, 0))
+        bbox_like = draw.textbbox((0, 0), "LIKE & SHARE!", font=font_big)
+        tw_like = bbox_like[2] - bbox_like[0]
+        draw.text((W // 2 - tw_like // 2, H - 285), "LIKE & SHARE!", fill=(255, 255, 255), font=font_big)
 
-    draw.rectangle([0, 0, W, 8], fill=theme["accent"])
-    draw.rectangle([0, H - 8, W, H], fill=theme["accent"])
+    draw.rectangle([0, 0, W, 6], fill=theme["accent"])
+    draw.rectangle([0, H - 6, W, H], fill=theme["accent"])
 
     return img
 
@@ -105,10 +170,13 @@ def create_viral_short(theme_idx, output_path, voice_path=None):
     W, H = 1080, 1920
     part_duration = 4
 
+    bg_images = _get_short_images(theme_idx)
+
     frames = []
     for part in range(2):
         hook = theme["hooks"][part % len(theme["hooks"])]
-        frame = _create_viral_frame(W, H, theme, hook, part)
+        bg_img = bg_images[part % len(bg_images)]
+        frame = _create_viral_frame_with_image(W, H, theme, hook, bg_img, part)
         frame_path = output_path.replace(".mp4", f"_part{part}.png")
         frame.save(frame_path, quality=95)
         frames.append(frame_path)
