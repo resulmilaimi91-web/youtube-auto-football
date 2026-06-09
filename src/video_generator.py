@@ -70,6 +70,58 @@ def _download_image(url, path):
     return False
 
 
+def _make_zoom_clip(img_path, duration, W, H, zoom_type="in"):
+    clip = ImageClip(img_path, duration=duration).resized((W, H))
+    if zoom_type == "in":
+        def zoom_in(get_frame, t):
+            frame = get_frame(t)
+            pil = Image.fromarray(frame)
+            ratio = 1.0 + 0.15 * (t / duration)
+            new_w = int(W * ratio)
+            new_h = int(H * ratio)
+            pil = pil.resize((new_w, new_h), Image.LANCZOS)
+            left = (new_w - W) // 2
+            top = (new_h - H) // 2
+            pil = pil.crop((left, top, left + W, top + H))
+            return list(pil.getdata())
+        clip = clip.transform(zoom_in)
+    elif zoom_type == "out":
+        def zoom_out(get_frame, t):
+            frame = get_frame(t)
+            pil = Image.fromarray(frame)
+            ratio = 1.15 - 0.15 * (t / duration)
+            new_w = int(W * ratio)
+            new_h = int(H * ratio)
+            pil = pil.resize((new_w, new_h), Image.LANCZOS)
+            left = (new_w - W) // 2
+            top = (new_h - H) // 2
+            pil = pil.crop((left, top, left + W, top + H))
+            return list(pil.getdata())
+        clip = clip.transform(zoom_out)
+    return clip
+
+
+def _make_split_screen(img_paths, duration, W, H):
+    half_w = W // 2
+    seg_dur = duration / max(len(img_paths), 1)
+    clips = []
+    for i in range(0, len(img_paths) - 1, 2):
+        try:
+            left = ImageClip(img_paths[i], duration=seg_dur).resized((half_w, H))
+            right = ImageClip(img_paths[i + 1], duration=seg_dur).resized((half_w, H))
+            right = right.with_position((half_w, 0))
+            split = CompositeVideoClip([left, right], size=(W, H))
+            clips.append(split)
+        except Exception:
+            pass
+    if not clips:
+        return None
+    try:
+        return concatenate_videoclips(clips, method="compose")
+    except Exception:
+        return clips[0]
+
+
 def download_football_images(count=8):
     paths = []
     os.makedirs(Config.OUTPUT_DIR, exist_ok=True)
@@ -273,12 +325,20 @@ def create_video(script_data, output_path, style=None):
         seg_dur = main_duration / len(img_paths)
         for i, p in enumerate(img_paths):
             try:
-                clip = ImageClip(p, duration=seg_dur).resized((W, H))
+                zoom = "in" if i % 2 == 0 else "out"
+                clip = _make_zoom_clip(p, seg_dur, W, H, zoom)
                 fade = min(0.5, seg_dur * 0.15)
                 clip = clip.with_effects([afx.FadeIn(fade), afx.FadeOut(fade)])
                 scenes.append(clip)
             except Exception:
                 pass
+
+    split_clip = _make_split_screen(img_paths[:4], min(6, main_duration * 0.3), W, H)
+    if split_clip:
+        try:
+            scenes.insert(min(3, len(scenes)), split_clip)
+        except Exception:
+            pass
 
     if not scenes:
         bg_clip = ColorClip(size=(W, H), color=(10, 15, 30), duration=main_duration)
@@ -349,16 +409,36 @@ def create_video(script_data, output_path, style=None):
         size=(W - 200, None), method="caption",
     ).with_position(("center", int(H * 0.35) + 3)).with_duration(main_duration).with_opacity(0.5)
 
+    def slide_in_left(clip, delay=0):
+        def pos(t):
+            if t < delay:
+                return (-clip.w, int(H * 0.35))
+            progress = min(1.0, (t - delay) / 0.8)
+            x = int(-clip.w + (W // 2 - clip.w // 2 + clip.w) * progress)
+            return (x, int(H * 0.35))
+        return clip.with_position(pos)
+
+    def slide_in_right(clip, delay=0):
+        def pos(t):
+            if t < delay:
+                return (W, int(H * 0.82))
+            progress = min(1.0, (t - delay) / 0.8)
+            x = int(W - (W // 2 - clip.w // 2 + clip.w) * progress)
+            return (x, int(H * 0.82))
+        return clip.with_position(pos)
+
     title_clip = TextClip(
         text=script_data["title"], font_size=Config.TITLE_FONT_SIZE,
         color="white", font=font_path, text_align="center",
         size=(W - 200, None), method="caption",
-    ).with_position(("center", int(H * 0.35))).with_duration(main_duration)
+    ).with_duration(main_duration)
+    title_clip = slide_in_left(title_clip, delay=0.5)
 
     subscribe = TextClip(
-        text="SUBSCRIBE", font_size=30,
+        text="▶ SUBSCRIBE NOW", font_size=32,
         color=(255, 215, 0), font=font_path,
-    ).with_position(("center", int(H * 0.82))).with_duration(main_duration)
+    ).with_duration(main_duration)
+    subscribe = slide_in_right(subscribe, delay=1.0)
 
     watermark_path = os.path.join(Config.OUTPUT_DIR, "watermark.png")
     if not os.path.exists(watermark_path):
@@ -369,13 +449,36 @@ def create_video(script_data, output_path, style=None):
     except Exception:
         pass
 
+    def make_ticker(text, duration, W, H, font_path, speed=100):
+        full_text = text * 3
+        tc = TextClip(text=full_text, font_size=20, color="white", font=font_path)
+        tw = tc.w
+        def pos(t):
+            x = W - int(speed * t) % (tw // 3 + W)
+            return (x, H - 30)
+        return tc.with_position(pos).with_duration(duration)
+
+    ticker_bg = ColorClip(size=(W, 35), color=(200, 30, 30), duration=main_duration).with_position((0, H - 35))
+    ticker_text = make_ticker(
+        "⚽ FIFA WORLD CUP 2026  •  SUBSCRIBE NOW  •  DAILY FOOTBALL NEWS  •  ",
+        main_duration, W, H, font_path, speed=80
+    )
+    overlays.extend([ticker_bg, ticker_text])
+
+    title_bg = ColorClip(size=(W, 100), color=(0, 0, 0), duration=main_duration).with_position((0, int(H * 0.30))).with_opacity(0.6)
+    overlays.append(title_bg)
+
+    overlays.append(title_shadow)
+    overlays.append(title_clip)
+    overlays.append(subscribe)
+
     if os.path.exists(MUSIC_PATH):
         music = AudioFileClip(MUSIC_PATH).with_duration(main_duration).with_effects([afx.MultiplyVolume(0.08)])
         final_audio = CompositeAudioClip([audio, music])
     else:
         final_audio = audio
 
-    all_clips = [main_video, title_shadow, title_clip, subscribe] + overlays
+    all_clips = [main_video] + overlays
     main_part = CompositeVideoClip(all_clips).with_audio(final_audio)
 
     final_parts = [intro_clip, main_part, outro_clip]
