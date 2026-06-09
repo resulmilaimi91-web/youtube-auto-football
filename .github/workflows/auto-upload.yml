@@ -18,7 +18,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: upload_quota.json
-          key: upload-quota-${{ github.run_id }}
+          key: upload-quota-state
           restore-keys: upload-quota-
 
       - name: Setup Python
@@ -58,7 +58,7 @@ jobs:
         uses: actions/cache/save@v4
         with:
           path: upload_quota.json
-          key: upload-quota-${{ github.run_id }}
+          key: upload-quota-state
 
       - name: Keep runner alive
         run: echo "Workflow completed at $(date)"
