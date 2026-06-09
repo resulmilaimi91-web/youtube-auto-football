@@ -122,11 +122,92 @@ def _make_split_screen(img_paths, duration, W, H):
         return clips[0]
 
 
-def download_football_images(count=8):
+def _get_topic_images(title):
+    title_lower = title.lower()
+    if any(w in title_lower for w in ["stadium", "venue", "host city", "cities"]):
+        return [
+            "football+stadium+night+lights",
+            "soccer+stadium+panoramic+aerial",
+            "world+cup+stadium+crowd+packed",
+            "modern+football+stadium+architecture",
+            "soccer+pitch+green+grass+perfect",
+            "football+stadium+night+match+atmosphere",
+            "soccer+stadium+fans+flags+colors",
+            "football+arena+scoreboard+view",
+        ]
+    elif any(w in title_lower for w in ["player", "mbappe", "haaland", "bellingham", "star", "top 10", "best"]):
+        return [
+            "soccer+player+kicking+ball+action",
+            "football+striker+goal+celebration",
+            "soccer+player+skills+dribbling",
+            "football+star+portrait+focus",
+            "soccer+forward+shooting+power",
+            "football+player+running+speed",
+            "soccer+midfielder+passing+technique",
+            "football+goalkeeper+save+dive",
+        ]
+    elif any(w in title_lower for w in ["trophy", "winner", "champion", "final", "lift"]):
+        return [
+            "world+cup+trophy+gold+shiny",
+            "soccer+champion+celebration+trophy",
+            "football+winner+medals+podium",
+            "world+cup+final+celebration+confetti",
+            "soccer+team+lifting+trophy",
+            "football+champions+banner+flag",
+            "world+cup+final+stadium+atmosphere",
+            "soccer+gold+trophy+close+up",
+        ]
+    elif any(w in title_lower for w in ["goal", "score", "highlight", "save"]):
+        return [
+            "soccer+goal+net+ball+inside",
+            "football+striker+scoring+goal",
+            "soccer+goalkeeper+diving+save",
+            "football+ball+hitting+crossbar",
+            "soccer+free+kick+goal+spectacular",
+            "football+ celebration+after+goal",
+            "soccer+goal+replay+angle",
+            "football+net+ball+close+up",
+        ]
+    elif any(w in title_lower for w in ["fan", "crowd", "support", "atmosphere"]):
+        return [
+            "football+fans+celebration+stadium",
+            "soccer+crowd+flags+colors+banner",
+            "world+cup+fans+party+atmosphere",
+            "football+supporters+chanting+singing",
+            "soccer+fans+face+paint+jersey",
+            "football+stadium+crowd+wave",
+            "soccer+fans+fireworks+celebration",
+            "football+terrace+support+passion",
+        ]
+    elif any(w in title_lower for w in ["format", "team", "qualif", "group", "bracket"]):
+        return [
+            "world+cup+bracket+draw+poster",
+            "soccer+teams+lineup+formation",
+            "football+group+stage+table",
+            "world+cup+qualification+map",
+            "soccer+national+teams+flags",
+            "football+draw+ceremony+stage",
+            "world+cup+format+infographic",
+            "soccer+match+schedule+calendar",
+        ]
+    else:
+        return [
+            "football+stadium+night+lights",
+            "soccer+players+action+match",
+            "world+cup+trophy+gold+championship",
+            "football+fans+celebration+stadium",
+            "soccer+goal+net+ball+score",
+            "football+field+green+pitch",
+            "soccer+boots+ball+grass",
+            "football+champions+league+night",
+        ]
+
+
+def download_football_images(count=8, title=""):
     paths = []
     os.makedirs(Config.OUTPUT_DIR, exist_ok=True)
 
-    queries = [
+    queries = _get_topic_images(title) if title else [
         "football+stadium+night+lights",
         "soccer+players+action+match",
         "world+cup+trophy+gold+championship",
@@ -134,11 +215,7 @@ def download_football_images(count=8):
         "soccer+goal+net+ball+score",
         "football+field+green+pitch",
         "soccer+boots+ball+grass",
-        "football+stadium+panoramic+view",
-        "soccer+player+kicking+ball",
         "football+champions+league+night",
-        "soccer+referee+whistle+match",
-        "football+scoreboard+stadium",
     ]
 
     sources = [
@@ -319,7 +396,8 @@ def create_video(script_data, output_path, style=None):
     print("  Generating outro...")
     outro_clip = VideoFileClip(create_tv_outro(OUTRO_PATH, duration=3))
 
-    img_paths = download_football_images(8)
+    print("  Downloading topic images...")
+    img_paths = download_football_images(8, script_data["title"])
     scenes = []
     if img_paths:
         seg_dur = main_duration / len(img_paths)
