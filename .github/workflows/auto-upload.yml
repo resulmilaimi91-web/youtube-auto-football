@@ -41,6 +41,7 @@ jobs:
           YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
           CHANNEL_NAME: ${{ secrets.CHANNEL_NAME }}
           UPLOAD_SCHEDULE_HOURS: ${{ secrets.UPLOAD_SCHEDULE_HOURS }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: python -m src.main
 
       - name: Keep runner alive
