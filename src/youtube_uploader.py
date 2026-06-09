@@ -92,6 +92,8 @@ def upload_video(video_path, thumb_path, script_data):
         return f"https://youtube.com/watch?v={video_id}"
     except HttpError as e:
         print(f"YouTube upload error (continuing): {e}")
+        if "uploadLimitExceeded" in str(e):
+            return "QUOTA_EXCEEDED"
         return None
 
 
@@ -128,4 +130,6 @@ def upload_short(video_path, script_data):
         return f"https://youtube.com/shorts/{video_id}"
     except HttpError as e:
         print(f"Short upload error (continuing): {e}")
+        if "uploadLimitExceeded" in str(e):
+            return "QUOTA_EXCEEDED"
         return None

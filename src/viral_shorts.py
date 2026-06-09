@@ -82,7 +82,7 @@ def _create_viral_frame(W, H, theme, hook_text, part=0):
         for i, (num, label) in enumerate(zip(numbers, labels)):
             x = 135 + i * 270
             draw.ellipse([x - 80, H // 2 - 80, x + 80, H // 2 + 80], fill=(0, 0, 0))
-            draw.ellipse([x - 75, H // 2 - 75, x + 75, H // 75 + 75], outline=theme["accent"], width=3)
+            draw.ellipse([x - 75, H // 2 - 75, x + 75, H // 2 + 75], outline=theme["accent"], width=3)
             bbox_n = draw.textbbox((0, 0), num, font=font_big)
             tw_n = bbox_n[2] - bbox_n[0]
             draw.text((x - tw_n // 2, H // 2 - 40), num, fill=theme["accent"], font=font_big)
