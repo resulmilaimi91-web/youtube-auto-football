@@ -76,11 +76,11 @@ def run():
     if os.path.exists(thumb_path):
         os.remove(thumb_path)
 
-    print("[6/6] Generating and uploading Shorts...")
+    print("[6/6] Generating viral Shorts...")
     try:
-        from src.shorts_generator import generate_shorts_batch
+        from src.viral_shorts import generate_viral_shorts
         shorts_dir = os.path.join(Config.OUTPUT_DIR, "shorts")
-        shorts = generate_shorts_batch(count=2, output_dir=shorts_dir)
+        shorts = generate_viral_shorts(output_dir=shorts_dir)
 
         for short in shorts:
             short_url = upload_short(short["path"], short["info"])
