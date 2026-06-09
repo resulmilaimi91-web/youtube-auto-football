@@ -93,3 +93,39 @@ def upload_video(video_path, thumb_path, script_data):
     except HttpError as e:
         print(f"YouTube upload error (continuing): {e}")
         return None
+
+
+def upload_short(video_path, script_data):
+    youtube = get_authenticated_service()
+
+    title = script_data.get("title", "Football Shorts #shorts")
+    if "#shorts" not in title.lower():
+        title += " #shorts"
+
+    body = {
+        "snippet": {
+            "title": title,
+            "description": script_data.get("script", "") + "\n\n#shorts #football #worldcup2026 #soccer #fifa",
+            "tags": script_data.get("hashtags", ["shorts", "football", "worldcup2026"]),
+            "categoryId": "17",
+        },
+        "status": {
+            "privacyStatus": "public",
+            "selfDeclaredMadeForKids": False,
+        },
+    }
+
+    media = MediaFileUpload(video_path, chunksize=-1, resumable=True)
+
+    try:
+        request = youtube.videos().insert(
+            part="snippet,status",
+            body=body,
+            media_body=media,
+        )
+        response = request.execute()
+        video_id = response["id"]
+        return f"https://youtube.com/shorts/{video_id}"
+    except HttpError as e:
+        print(f"Short upload error (continuing): {e}")
+        return None
