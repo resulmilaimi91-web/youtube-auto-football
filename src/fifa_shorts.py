@@ -109,7 +109,7 @@ def _create_viral_frame_with_image(W, H, theme, hook_text, bg_image, part=0):
         bbox_sub = draw.textbbox((0, 0), "SUBSCRIBE NOW!", font=font_big)
         tw_sub = bbox_sub[2] - bbox_sub[0]
         draw.text((W // 2 - tw_sub // 2, H - 360), "SUBSCRIBE NOW!", fill=theme["accent"], font=font_big)
-        stats = [("48", "TEAMS"), ("104", "MATCHES"), ("5B+", "VIEWERS")]
+        stats = [("3B+", "FANS"), ("200+", "COUNTRIES"), ("1M+", "GOALS")]
         for i, (num, label) in enumerate(stats):
             x = 180 + i * 270
             y = H // 2 + 300
@@ -122,8 +122,8 @@ def _create_viral_frame_with_image(W, H, theme, hook_text, bg_image, part=0):
             tw_l = bbox_l[2] - bbox_l[0]
             draw.text((x - tw_l // 2, y + 10), label, fill=(255, 255, 255), font=font_small)
     elif part == 1:
-        numbers = ["48", "104", "39", "82K"]
-        labels = ["TEAMS", "MATCHES", "DAYS", "FANS"]
+        numbers = ["3B", "200", "40K", "1000"]
+        labels = ["FANS", "COUNTRIES", "STADIUMS", "LEGENDS"]
         for i, (num, label) in enumerate(zip(numbers, labels)):
             x = 135 + i * 270
             y_center = H // 2
@@ -174,7 +174,7 @@ def create_viral_short(theme_idx, themes, output_path, voice_path=None):
         "title": theme["title"],
         "script": theme["script"],
         "duration": part_duration * 2,
-        "hashtags": ["shorts", "football", "worldcup2026", "viral", "fifa"],
+        "hashtags": ["shorts", "football", "viral", "soccer", "sports"],
     }
 
 
