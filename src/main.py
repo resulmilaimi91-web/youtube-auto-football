@@ -7,11 +7,16 @@ from datetime import datetime
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
 from src.config import Config
-from src.football_data import (
-    get_todays_matches,
-    get_world_cup_2026_news,
-    format_match_text,
-)
+try:
+    from src.football_data import (
+        get_todays_matches,
+        get_world_cup_2026_news,
+        format_match_text,
+    )
+except Exception:
+    get_todays_matches = lambda: []
+    get_world_cup_2026_news = lambda: []
+    format_match_text = lambda x: ""
 from src.script_generator import generate_script
 from src.video_generator import create_video, STYLES
 from src.youtube_uploader import upload_video, upload_short
