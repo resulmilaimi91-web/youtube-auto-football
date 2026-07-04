@@ -3,11 +3,10 @@ import random
 import urllib.request
 import io
 from PIL import Image, ImageDraw, ImageFont, ImageFilter, ImageEnhance
-from moviepy import (
-    ImageClip, AudioFileClip, concatenate_videoclips
-)
+from moviepy import ImageClip, AudioFileClip, concatenate_videoclips
 from moviepy.audio.fx import AudioFadeIn, AudioFadeOut
 from src.config import Config
+from src.trends_fetcher import get_trending_sports_topics
 
 
 def _get_font(size):
@@ -62,70 +61,54 @@ def _get_short_images(theme_idx):
     return images
 
 
-VIRAL_SHORTS = [
-    {
-        "title": "World Cup 2026 Will BREAK The Internet! #shorts #worldcup2026 #viral",
-        "script": "World Cup 2026 will be the biggest event in human history. 48 teams. 16 cities. 104 matches. 39 days of non-stop football. 82 thousand fans in the final. 5 billion viewers worldwide. This is not just a tournament. This is a revolution. Are you ready for the greatest World Cup ever?",
-        "bg": [(255, 0, 0), (200, 0, 0)],
-        "text": (255, 255, 255),
-        "accent": (255, 215, 0),
-        "hooks": ["STOP SCROLLING!", "THIS WILL BLOW YOUR MIND!", "YOU ARE NOT READY!"],
-    },
-    {
-        "title": "Football Players Are NOT Human! #shorts #football #insane #viral",
-        "script": "These football players are not human. The speed. The power. The technique. They defy physics. They break the laws of nature. They do things we thought were impossible. This is why football is the beautiful game. This is why we watch. This is why we love it.",
-        "bg": [(0, 0, 0), (30, 0, 60)],
-        "text": (255, 255, 255),
-        "accent": (0, 255, 0),
-        "hooks": ["WATCH THIS!", "THIS IS INSANE!", "NO WAY!"],
-    },
-]
+def _build_viral_shorts():
+    raw = get_trending_sports_topics()
+    shorts = []
+    for topic in raw:
+        shorts.append({
+            "title": f"{topic.title()} Will BLOW Your Mind! #shorts #football #viral",
+            "script": f"Did you know? {topic}. Football history is full of amazing records. Subscribe for more!",
+            "bg": [(random.randint(100, 255), random.randint(0, 100), 0)],
+            "text": (255, 255, 255),
+            "accent": (255, 215, 0),
+            "hooks": ["STOP SCROLLING!", "THIS IS INSANE!", "NO WAY!", "WATCH THIS!"],
+        })
+    return shorts
 
 
 def _create_viral_frame_with_image(W, H, theme, hook_text, bg_image, part=0):
     img = bg_image.copy()
     img = img.resize((W, H), Image.LANCZOS)
-
     enhancer = ImageEnhance.Brightness(img)
     img = enhancer.enhance(0.4)
-
     img = img.filter(ImageFilter.GaussianBlur(radius=3))
-
     draw = ImageDraw.Draw(img)
-
     overlay = Image.new("RGBA", (W, H), (0, 0, 0, 0))
     ov_draw = ImageDraw.Draw(overlay)
-
     for i in range(3):
         y_start = 150 + i * 220
         ov_draw.rectangle([0, y_start, W, y_start + 180], fill=(0, 0, 0, 160))
-
     img = Image.alpha_composite(img.convert("RGBA"), overlay).convert("RGB")
     draw = ImageDraw.Draw(img)
-
     font_hook = _get_font(90)
     font_big = _get_font(72)
     font_med = _get_font(48)
     font_small = _get_font(36)
-
     hook_y = 200
     bbox = draw.textbbox((0, 0), hook_text, font=font_hook)
     tw = bbox[2] - bbox[0]
     draw.text((W // 2 - tw // 2 + 3, hook_y + 3), hook_text, fill=(0, 0, 0), font=font_hook)
     draw.text((W // 2 - tw // 2, hook_y), hook_text, fill=theme["accent"], font=font_hook)
-
     if part == 0:
         cx, cy = W // 2, H // 2 + 100
-        draw.ellipse([cx - 120, cy - 120, cx + 120, cy + 120], fill=(0, 0, 0, 180) if img.mode == "RGBA" else (0, 0, 0))
+        draw.ellipse([cx - 120, cy - 120, cx + 120, cy + 120], fill=(0, 0, 0))
         draw.ellipse([cx - 115, cy - 115, cx + 115, cy + 115], outline=theme["accent"], width=4)
         draw.polygon([(cx - 40, cy - 60), (cx - 40, cy + 60), (cx + 60, cy)], fill=theme["accent"])
-
         draw.rectangle([60, H - 380, W - 60, H - 260], fill=(0, 0, 0))
         draw.rectangle([60, H - 380, W - 60, H - 260], outline=theme["accent"], width=4)
         bbox_sub = draw.textbbox((0, 0), "SUBSCRIBE NOW!", font=font_big)
         tw_sub = bbox_sub[2] - bbox_sub[0]
         draw.text((W // 2 - tw_sub // 2, H - 360), "SUBSCRIBE NOW!", fill=theme["accent"], font=font_big)
-
         stats = [("48", "TEAMS"), ("104", "MATCHES"), ("5B+", "VIEWERS")]
         for i, (num, label) in enumerate(stats):
             x = 180 + i * 270
@@ -138,7 +121,6 @@ def _create_viral_frame_with_image(W, H, theme, hook_text, bg_image, part=0):
             bbox_l = draw.textbbox((0, 0), label, font=font_small)
             tw_l = bbox_l[2] - bbox_l[0]
             draw.text((x - tw_l // 2, y + 10), label, fill=(255, 255, 255), font=font_small)
-
     elif part == 1:
         numbers = ["48", "104", "39", "82K"]
         labels = ["TEAMS", "MATCHES", "DAYS", "FANS"]
@@ -153,25 +135,20 @@ def _create_viral_frame_with_image(W, H, theme, hook_text, bg_image, part=0):
             bbox_l = draw.textbbox((0, 0), label, font=font_med)
             tw_l = bbox_l[2] - bbox_l[0]
             draw.text((x - tw_l // 2, y_center + 45), label, fill=theme["text"], font=font_med)
-
         draw.rectangle([60, H - 300, W - 60, H - 200], fill=(255, 0, 0))
         bbox_like = draw.textbbox((0, 0), "LIKE & SHARE!", font=font_big)
         tw_like = bbox_like[2] - bbox_like[0]
         draw.text((W // 2 - tw_like // 2, H - 285), "LIKE & SHARE!", fill=(255, 255, 255), font=font_big)
-
     draw.rectangle([0, 0, W, 6], fill=theme["accent"])
     draw.rectangle([0, H - 6, W, H], fill=theme["accent"])
-
     return img
 
 
-def create_viral_short(theme_idx, output_path, voice_path=None):
-    theme = VIRAL_SHORTS[theme_idx % len(VIRAL_SHORTS)]
+def create_viral_short(theme_idx, themes, output_path, voice_path=None):
+    theme = themes[theme_idx % len(themes)]
     W, H = 1080, 1920
     part_duration = 4
-
     bg_images = _get_short_images(theme_idx)
-
     frames = []
     for part in range(2):
         hook = theme["hooks"][part % len(theme["hooks"])]
@@ -180,32 +157,19 @@ def create_viral_short(theme_idx, output_path, voice_path=None):
         frame_path = output_path.replace(".mp4", f"_part{part}.png")
         frame.save(frame_path, quality=95)
         frames.append(frame_path)
-
     clips = []
-    for i, frame_path in enumerate(frames):
-        clip = ImageClip(frame_path, duration=part_duration)
+    for fp in frames:
+        clip = ImageClip(fp, duration=part_duration)
         clip = clip.with_effects([AudioFadeIn(0.3), AudioFadeOut(0.3)])
         clips.append(clip)
-
     video = concatenate_videoclips(clips, method="compose")
-
     if voice_path and os.path.exists(voice_path) and os.path.getsize(voice_path) > 1000:
         audio = AudioFileClip(voice_path)
         video = video.with_audio(audio)
-
-    video.write_videofile(
-        output_path,
-        fps=24,
-        codec="libx264",
-        preset="fast",
-        threads=4,
-        logger=None,
-    )
-
+    video.write_videofile(output_path, fps=24, codec="libx264", preset="fast", threads=4, logger=None)
     for fp in frames:
         if os.path.exists(fp):
             os.remove(fp)
-
     return output_path, {
         "title": theme["title"],
         "script": theme["script"],
@@ -218,17 +182,17 @@ def generate_viral_shorts(output_dir=None):
     if output_dir is None:
         output_dir = os.path.join(Config.OUTPUT_DIR, "shorts")
     os.makedirs(output_dir, exist_ok=True)
-
+    themes = _build_viral_shorts()
     results = []
-    for i in range(2):
+    count = min(2, len(themes))
+    for i in range(count):
         output_path = os.path.join(output_dir, f"viral_short_{i+1}.mp4")
         try:
-            path, info = create_viral_short(i, output_path)
+            path, info = create_viral_short(i, themes, output_path)
             results.append({"path": path, "info": info})
             print(f"  Viral Short {i+1}: {info['title'][:50]}...")
         except Exception as e:
             print(f"  Viral Short {i+1} failed: {e}")
-
     return results
 
 
@@ -237,4 +201,4 @@ if __name__ == "__main__":
     for r in results:
         print(f"\nViral Short: {r['info']['title']}")
         print(f"  Duration: {r['info']['duration']}s")
-        print(f"  Path: {r['path']}")
+        print(f"  Path: {r['info']['path']}")
