@@ -22,42 +22,37 @@ def _get_font(size):
     return ImageFont.load_default()
 
 
-def _download_image(url, fallback_color=(255, 0, 0)):
+def _download_picsum(path, seed):
     try:
+        url = f"https://picsum.photos/seed/{seed}/1080/1920"
         req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
-        data = urllib.request.urlopen(req, timeout=10).read()
-        return Image.open(io.BytesIO(data)).convert("RGB")
+        data = urllib.request.urlopen(req, timeout=15).read()
+        if len(data) > 5000:
+            with open(path, "wb") as f:
+                f.write(data)
+            return True
     except Exception:
-        img = Image.new("RGB", (1080, 1920), fallback_color)
-        draw = ImageDraw.Draw(img)
-        for y in range(1920):
-            ratio = y / 1920
-            r = int(fallback_color[0] * (1 - ratio * 0.3))
-            g = int(fallback_color[1] * (1 - ratio * 0.3))
-            b = int(fallback_color[2] * (1 - ratio * 0.3))
-            draw.line([(0, y), (1080, y)], fill=(r, g, b))
-        return img
+        pass
+    return False
 
 
 def _get_short_images(theme_idx):
-    image_queries = [
-        [
-            "https://images.unsplash.com/photo-1522778119026-d647f0596c20?w=1080&h=1920&fit=crop",
-            "https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=1080&h=1920&fit=crop",
-            "https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=1080&h=1920&fit=crop",
-            "https://images.unsplash.com/photo-1431324155629-1a6deb1dec8d?w=1080&h=1920&fit=crop",
-        ],
-        [
-            "https://images.unsplash.com/photo-1579952363873-27f3bade9f55?w=1080&h=1920&fit=crop",
-            "https://images.unsplash.com/photo-1553778263-73a83bab9b0c?w=1080&h=1920&fit=crop",
-            "https://images.unsplash.com/photo-1560272564-c83b4b0c1c5d?w=1080&h=1920&fit=crop",
-            "https://images.unsplash.com/photo-1489944448-2925f8a0b3b5?w=1080&h=1920&fit=crop",
-        ],
+    seeds = [
+        ["football_stadium_1", "soccer_action_1", "worldcup_arena_1", "football_fans_1"],
+        ["stadium_night_1", "soccer_player_1", "worldcup_crowd_1", "football_goal_1"],
+        ["football_celebration_1", "soccer_kick_1", "stadium_aerial_1", "football_team_1"],
     ]
-    urls = image_queries[theme_idx % len(image_queries)]
+    seed_list = seeds[theme_idx % len(seeds)]
     images = []
-    for url in urls:
-        img = _download_image(url)
+    for seed in seed_list:
+        path = os.path.join(Config.OUTPUT_DIR, f"short_img_{seed}.jpg")
+        ok = _download_picsum(path, seed)
+        if ok:
+            img = Image.open(path).convert("RGB")
+            img = img.resize((1080, 1920), Image.LANCZOS)
+            images.append(img)
+    if not images:
+        img = Image.new("RGB", (1080, 1920), (20, 40, 80))
         images.append(img)
     return images
 
