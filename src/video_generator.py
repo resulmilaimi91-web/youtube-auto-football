@@ -262,84 +262,16 @@ def _make_split_screen(img_paths, duration, W, H):
 
 
 def _get_topic_images(title):
-    title_lower = title.lower()
-    if any(w in title_lower for w in ["stadium", "venue", "host city", "cities"]):
-        return [
-            "football+stadium+night+lights",
-            "soccer+stadium+panoramic+aerial",
-            "world+cup+stadium+crowd+packed",
-            "modern+football+stadium+architecture",
-            "soccer+pitch+green+grass+perfect",
-            "football+stadium+night+match+atmosphere",
-            "soccer+stadium+fans+flags+colors",
-            "football+arena+scoreboard+view",
-        ]
-    elif any(w in title_lower for w in ["player", "mbappe", "haaland", "bellingham", "star", "top 10", "best"]):
-        return [
-            "soccer+player+kicking+ball+action",
-            "football+striker+goal+celebration",
-            "soccer+player+skills+dribbling",
-            "football+star+portrait+focus",
-            "soccer+forward+shooting+power",
-            "football+player+running+speed",
-            "soccer+midfielder+passing+technique",
-            "football+goalkeeper+save+dive",
-        ]
-    elif any(w in title_lower for w in ["trophy", "winner", "champion", "final", "lift"]):
-        return [
-            "world+cup+trophy+gold+shiny",
-            "soccer+champion+celebration+trophy",
-            "football+winner+medals+podium",
-            "world+cup+final+celebration+confetti",
-            "soccer+team+lifting+trophy",
-            "football+champions+banner+flag",
-            "world+cup+final+stadium+atmosphere",
-            "soccer+gold+trophy+close+up",
-        ]
-    elif any(w in title_lower for w in ["goal", "score", "highlight", "save"]):
-        return [
-            "soccer+goal+net+ball+inside",
-            "football+striker+scoring+goal",
-            "soccer+goalkeeper+diving+save",
-            "football+ball+hitting+crossbar",
-            "soccer+free+kick+goal+spectacular",
-            "football+ celebration+after+goal",
-            "soccer+goal+replay+angle",
-            "football+net+ball+close+up",
-        ]
-    elif any(w in title_lower for w in ["fan", "crowd", "support", "atmosphere"]):
-        return [
-            "football+fans+celebration+stadium",
-            "soccer+crowd+flags+colors+banner",
-            "world+cup+fans+party+atmosphere",
-            "football+supporters+chanting+singing",
-            "soccer+fans+face+paint+jersey",
-            "football+stadium+crowd+wave",
-            "soccer+fans+fireworks+celebration",
-            "football+terrace+support+passion",
-        ]
-    elif any(w in title_lower for w in ["format", "team", "qualif", "group", "bracket"]):
-        return [
-            "world+cup+bracket+draw+poster",
-            "soccer+teams+lineup+formation",
-            "football+group+stage+table",
-            "world+cup+qualification+map",
-            "soccer+national+teams+flags",
-            "football+draw+ceremony+stage",
-            "world+cup+format+infographic",
-            "soccer+match+schedule+calendar",
-        ]
-    else:
-        return [
-            "football+stadium+night+lights",
-            "soccer+players+action+match",
-            "world+cup+trophy+gold+championship",
-            "football+fans+celebration+stadium",
-            "soccer+goal+net+ball+score",
-            "football+field+green+pitch",
-            "soccer+boots+ball+grass",
-            "football+champions+league+night",
-        ]
+    return [
+        "kids_nature_animals_1",
+        "kids_space_planets_2",
+        "kids_ocean_sea_3",
+        "kids_rainbow_colors_4",
+        "kids_forest_trees_5",
+        "kids_butterfly_garden_6",
+        "kids_sun_moon_7",
+        "kids_dinosaur_fun_8",
+    ]
 
 
 def download_football_images(count=8, title=""):
