@@ -4,34 +4,62 @@ from src.trends_fetcher import get_trending_script_topic
 
 TEMPLATES = [
     {
-        "title": "FIFA WORLD CUP 2026: The COMPLETE Guide Nobody Talks About!",
-        "script": """Welcome back to Football Highlights Daily. Today is {date}, and this is the most comprehensive FIFA World Cup 2026 guide you will find anywhere on YouTube. We are going deep today, so grab a coffee and settle in because we have got a lot to cover.
+        "title": "Football Records That Will NEVER Be Broken!",
+        "script": """Welcome back to Football Highlights Daily. Today is {date}, and we are looking at football records that will stand forever. These are the records that define the beautiful game.
 
-Let us start with the basics. The 2026 World Cup will be hosted across three nations: the United States, Mexico, and Canada. This is the first time in World Cup history that three countries will co-host the tournament. The United States previously hosted in 1994, Mexico hosted in 1970 and 1986, and this will be Canada's first time hosting any World Cup.
+Let us start with the goalscorers. Pele scored 1,279 goals in his career, a record that may never be beaten. Romario scored over 1,000 goals. Cristiano Ronaldo has scored over 900 career goals and counting. Lionel Messi has also passed 800 goals. These are numbers that most players can only dream of.
 
-The tournament kicks off on June 11th, 2026, at the legendary Estadio Azteca in Mexico City. This stadium has hosted two World Cup finals already, 1970 and 1986, and it will once again be the center of the football world. The final will be held on July 19th at MetLife Stadium in New Jersey, just outside New York City. That is 39 days of non-stop football action across 16 incredible host cities.
+But it is not just about goals. The fastest goal in football history was scored by Nawaf Al-Abed in just 2.4 seconds. Yes, you read that correctly. 2.4 seconds. The goalkeeper had barely taken his position when the ball was already in the net.
 
-Now, here is where it gets really exciting. For the first time ever, the World Cup will feature 48 teams instead of the usual 32. That is 16 more teams than any previous World Cup. We are talking about 104 total matches, with teams from every corner of the globe competing for the most prestigious trophy in football.
+The most red cards in football history belong to Gerardo Bedoya with 46 red cards. That is an entire career of discipline issues. Compare that to players like Andres Iniesta who never received a red card in his entire career.
 
-The format has also changed significantly. Teams will be divided into 12 groups of four. The top two teams from each group will advance automatically. In addition, the eight best third-placed teams will also qualify for the knockout rounds. That gives us a brand new round of 32, which has never existed before in World Cup history.
+The most expensive transfer in football history remains Neymar's move to PSG for 222 million euros. That transfer completely changed the market and prices have never been the same since.
 
-From the round of 32 onwards, it is single elimination. The round of 32 starts on June 29th. The round of 16 takes place on July 1st and 2nd. Quarter-finals are on July 4th and 5th. Semi-finals on July 8th and 9th. The third-place match on July 18th. And the big one, the final, on July 19th.
+The longest unbeaten streak in top-flight football belongs to Celtic with 62 games. AC Milan once went 58 games unbeaten in Serie A. Arsenal went 49 games unbeaten in the Premier League.
 
-So, which team are you backing to win it all? Will it be defending champions Argentina with Messi potentially playing his final World Cup? Will it be France with Kylian Mbappe on a mission? Will England finally end their wait? Will Brazil reclaim their throne? Or will a dark horse shock the world?
-
-Drop your predictions in the comments below, and do not forget to subscribe for daily World Cup coverage. We will be covering every single match of this tournament.""",
+These are the records that make football the most beautiful sport in the world. Subscribe for more amazing football content every day!""",
     },
     {
-        "title": "World Cup 2026: Every Host City RANKED From Worst To Best!",
-        "script": """Hey there football fans, welcome back to Football Highlights Daily. It is {date}, and today we are ranking all 16 host cities for the 2026 FIFA World Cup from worst to best. This is going to be controversial, so buckle up.
+        "title": "Top 10 Most Skilful Footballers Of All Time!",
+        "script": """Hey there football fans, welcome back to Football Highlights Daily. It is {date}, and today we are counting down the most skilful footballers to ever play the game.
 
-The United States leads the way with eleven host cities. Atlanta, Boston, Dallas, Houston, Kansas City, Los Angeles, Miami, New York/New Jersey, Philadelphia, San Francisco Bay Area, and Seattle. Each city brings something unique to the tournament. Mexico contributes three historic venues: Mexico City's legendary Estadio Azteca, Guadalajara's Estadio Akron, and Monterrey's Estadio BBVA. Canada rounds out the list with Toronto's BMO Field and Vancouver's BC Place.
+Number 10: Neymar Jr. The Brazilian magician with the most tricks in modern football. His creativity and flair make him one of the most entertaining players ever.
 
-Let us start from the bottom. Every host city has prepared years for this moment. New infrastructure, upgraded stadiums, world-class hospitality. The United States last hosted in 1994 when the World Cup averaged nearly 69,000 fans per game - a record that still stands today. This time around, with modern stadiums and better infrastructure, those numbers could be shattered.
+Number 9: Ronaldinho. The man who made football look like art. His no-look passes, elastico moves, and free kicks were absolutely legendary. He is the reason many of us fell in love with football.
 
-The most anticipated venues include SoFi Stadium in Los Angeles, AT&T Stadium in Dallas, and the final venue, MetLife Stadium in New Jersey. But dark horses like Arrowhead Stadium in Kansas City and Lumen Field in Seattle could create incredible atmospheres.
+Number 8: Cristiano Ronaldo. His step-overs, the chop, the knuckleball free kicks. His skill combined with his athleticism made him unstoppable for over a decade.
 
-Which host city are you most excited about? Let me know in the comments!""",
+Number 7: Lionel Messi. The greatest dribbler in football history. His close control, balance, and ability to beat defenders in tight spaces is unmatched.
+
+Number 6: Jay-Jay Okocha. The Nigerian legend who did things with a football that seemed impossible. He played with a smile and entertained millions.
+
+Number 5: Zinedine Zidane. The elegance, the control, the 1998 World Cup final. His touch was like velvet and his vision was extraordinary.
+
+Number 4: Diego Maradona. The 1986 World Cup was his stage. His dribbling through half of England is the most iconic goal in football history.
+
+Number 3: Pele. The King of football. His skills, his goals, his three World Cup titles. He defined football for an entire generation.
+
+Number 2: Johan Cruyff. The Cruyff turn changed football forever. His intelligence and technique were decades ahead of their time.
+
+Number 1: Ronaldo Nazario. The original Ronaldo, before Cristiano and Messi. His pace, power, and skill at 19 years old was unbelievable. He is the most complete striker football has ever seen.
+
+Which skilful player is your favourite? Comment below and subscribe for more daily football content!""",
+    },
+    {
+        "title": "The Craziest Moments In Football History!",
+        "script": """Welcome back to Football Highlights Daily. Today is {date}, and we are looking at the craziest moments in football history. These are the moments that left fans speechless.
+
+The 2005 Champions League final. Liverpool were 3-0 down against AC Milan at halftime. What happened next is the greatest comeback in football history. Liverpool scored three goals in six minutes and went on to win on penalties.
+
+The 2014 World Cup. Germany scored seven goals against Brazil. In Brazil. On Brazilian soil. The entire nation was in shock. It was the most one-sided semi-final in World Cup history.
+
+Then there is the hand of God. Diego Maradona punched the ball into the net against England in the 1986 World Cup. He later said it was "the hand of God." Minutes later, he scored the goal of the century.
+
+The craziest transfer story: Carlos Tevez and Javier Mascherano joined West Ham United in 2006 in a deal so complicated it led to court cases and a 5 million pound fine.
+
+Remember when Eric Cantona kung-fu kicked a fan? Or when Zinedine Zidane headbutted Marco Materazzi in the World Cup final? These moments are part of football's rich and unpredictable history.
+
+Football is never boring. Subscribe for more incredible football stories!""",
     },
 ]
 
@@ -41,28 +69,14 @@ def generate_script(match_text=None, all_stories=None):
     template = random.choice(TEMPLATES)
     today = datetime.now().strftime("%B %d, %Y")
 
-    if match_text:
-        match_section = f"\n\nNow let us look at what is happening in the football world today. {match_text}"
-    else:
-        match_section = ""
-
-    if all_stories:
-        news_section = f"\n\nIn other news, {random.choice(all_stories)}"
-    else:
-        news_section = ""
-
     script = template["script"].format(date=today)
-    if match_section and len(script) + len(match_section) < 4000:
-        script += match_section
-    if news_section and len(script) + len(news_section) < 4000:
-        script += news_section
 
-    script += f"\n\nToday's trending topic: {topic}. Make sure to subscribe for more daily football content!"
+    script += f"\n\nToday's hot topic: {topic}. What do you think about this? Let us know in the comments and subscribe for daily football content!"
 
     return {
         "title": template["title"],
         "script": script,
-        "description": f"Full FIFA World Cup 2026 analysis and football highlights. Today's topic: {topic}\n\n#WorldCup2026 #FIFA #Football #Soccer #Highlights",
-        "tags": ["WorldCup2026", "FIFA", "Football", "Soccer", "Highlights", "WorldCup"],
+        "description": f"Amazing football highlights, records, and moments. Today's topic: {topic}\n\n#Football #Soccer #Highlights #Viral #Sports",
+        "tags": ["Football", "Soccer", "Highlights", "Viral", "Sports", "Records", "Skills"],
         "category": "17",
     }
