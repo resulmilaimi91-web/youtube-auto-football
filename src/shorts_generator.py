@@ -24,103 +24,87 @@ def _get_font(size):
     return ImageFont.load_default()
 
 
-def _download_image(url, fallback_color=(20, 40, 80)):
+def _download_picsum(path, seed):
     try:
+        url = f"https://picsum.photos/seed/{seed}/1080/1920"
         req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
-        data = urllib.request.urlopen(req, timeout=10).read()
-        return Image.open(io.BytesIO(data)).convert("RGB")
+        data = urllib.request.urlopen(req, timeout=15).read()
+        if len(data) > 5000:
+            with open(path, "wb") as f:
+                f.write(data)
+            return True
     except Exception:
-        img = Image.new("RGB", (1080, 1920), fallback_color)
-        draw = ImageDraw.Draw(img)
-        for y in range(1920):
-            ratio = y / 1920
-            r = int(fallback_color[0] * (1 - ratio * 0.3))
-            g = int(fallback_color[1] * (1 - ratio * 0.3))
-            b = int(fallback_color[2] * (1 - ratio * 0.3))
-            draw.line([(0, y), (1080, y)], fill=(r, g, b))
-        return img
+        pass
+    return False
+
+
+def _get_short_bg_image(seed_base):
+    seeds = [f"{seed_base}_{i}" for i in range(1, 5)]
+    for seed in seeds:
+        path = os.path.join(Config.OUTPUT_DIR, f"short_bg_{seed}.jpg")
+        ok = _download_picsum(path, seed)
+        if ok:
+            img = Image.open(path).convert("RGB")
+            return img
+    return None
 
 
 SHORT_THEMES = [
     {
         "title": "This GOAL Broke The Internet! #shorts #football",
         "script": "This goal from the World Cup qualifiers absolutely broke the internet. The technique, the power, the placement. Pure perfection. Would you score from this angle?",
-        "images": [
-            "https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=1080&h=1920&fit=crop",
-            "https://images.unsplash.com/photo-1553778263-73a83bab9b0c?w=1080&h=1920&fit=crop",
-        ],
         "accent": (255, 0, 0),
         "text_color": (255, 215, 0),
+        "seed": "football_goal_amazing",
     },
     {
         "title": "World Cup 2026 SECRET Revealed! #shorts #worldcup",
         "script": "Here is a World Cup 2026 secret that nobody is talking about. 48 teams, 104 matches, 39 days. The biggest World Cup ever. Are you ready?",
-        "images": [
-            "https://images.unsplash.com/photo-1522778119026-d647f0596c20?w=1080&h=1920&fit=crop",
-            "https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=1080&h=1920&fit=crop",
-        ],
         "accent": (255, 215, 0),
         "text_color": (255, 255, 255),
+        "seed": "worldcup_secret_2026",
     },
     {
         "title": "The SAVE That Won The Match! #shorts #soccer",
         "script": "This goalkeeper save is absolutely insane. Diving full stretch to keep the ball out. This is what separates the best from the rest.",
-        "images": [
-            "https://images.unsplash.com/photo-1560272564-c83b66b1ad12?w=1080&h=1920&fit=crop",
-            "https://images.unsplash.com/photo-1431324155629-1a6deb1dec8d?w=1080&h=1920&fit=crop",
-        ],
         "accent": (255, 255, 0),
         "text_color": (255, 255, 255),
+        "seed": "goalkeeper_save_epic",
     },
     {
         "title": "Football Fans Go CRAZY! #shorts #fans",
         "script": "Listen to these football fans. The passion, the energy, the atmosphere. This is why we love the beautiful game.",
-        "images": [
-            "https://images.unsplash.com/photo-1579952363873-27f3bade9f55?w=1080&h=1920&fit=crop",
-            "https://images.unsplash.com/photo-1489944440615-453fc2b6a9a9?w=1080&h=1920&fit=crop",
-        ],
         "accent": (0, 255, 0),
         "text_color": (255, 255, 255),
+        "seed": "football_fans_crazy",
     },
     {
         "title": "Skill Move That FOOLED Everyone! #shorts #skills",
         "script": "This skill move completely fooled the defender. The fake, the turn, the acceleration. Pure magic on the football pitch.",
-        "images": [
-            "https://images.unsplash.com/photo-1431324155629-1a6deb1dec8d?w=1080&h=1920&fit=crop",
-            "https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=1080&h=1920&fit=crop",
-        ],
         "accent": (0, 200, 255),
         "text_color": (255, 255, 255),
+        "seed": "football_skill_magic",
     },
     {
         "title": "World Cup Stadiums Are INSANE! #shorts #stadium",
-        "script": "Take a look at these World Cup 2026 stadiums. MetLife, Azteca, SoFi. 82,000 fans screaming. Incredible.",
-        "images": [
-            "https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=1080&h=1920&fit=crop",
-            "https://images.unsplash.com/photo-1522778119026-d647f0596c20?w=1080&h=1920&fit=crop",
-        ],
+        "script": "Take a look at these World Cup 2026 stadiums. MetLife, AT&T, SoFi. 82,000 fans screaming. Incredible.",
         "accent": (255, 215, 0),
         "text_color": (255, 255, 255),
+        "seed": "stadium_worldcup_2026",
     },
     {
         "title": "HAT-TRICK Hero! #shorts #football",
         "script": "Three goals, one player, absolute domination. This hat-trick performance is one of the best we have ever seen.",
-        "images": [
-            "https://images.unsplash.com/photo-1553778263-73a83bab9b0c?w=1080&h=1920&fit=crop",
-            "https://images.unsplash.com/photo-1560272564-c83b66b1ad12?w=1080&h=1920&fit=crop",
-        ],
         "accent": (255, 215, 0),
         "text_color": (255, 255, 255),
+        "seed": "hattrick_football_hero",
     },
     {
         "title": "Red Card CHAOS! #shorts #drama",
         "script": "This red card caused absolute chaos. The referee, the protests, the drama. Football is nothing without moments like this.",
-        "images": [
-            "https://images.unsplash.com/photo-1489944440615-453fc2b6a9a9?w=1080&h=1920&fit=crop",
-            "https://images.unsplash.com/photo-1579952363873-27f3bade9f55?w=1080&h=1920&fit=crop",
-        ],
         "accent": (255, 255, 255),
         "text_color": (255, 215, 0),
+        "seed": "red_card_chaos",
     },
 ]
 
@@ -155,17 +139,11 @@ def create_short_video(theme_idx, output_path, voice_path=None):
     theme = SHORT_THEMES[theme_idx % len(SHORT_THEMES)]
     W, H = 1080, 1920
 
-    img_urls = theme.get("images", [])
-    bg_image = None
-    for url in img_urls:
-        bg_image = _download_image(url)
-        if bg_image:
-            break
+    bg_img = _get_short_bg_image(theme["seed"])
+    if bg_img is None:
+        bg_img = Image.new("RGB", (W, H), (20, 40, 80))
 
-    if bg_image is None:
-        bg_image = Image.new("RGB", (W, H), (20, 40, 80))
-
-    bg = _create_short_bg_with_image(W, H, theme, bg_image)
+    bg = _create_short_bg_with_image(W, H, theme, bg_img)
     draw = ImageDraw.Draw(bg)
 
     font_huge = _get_font(80)
@@ -233,7 +211,7 @@ def create_short_video(theme_idx, output_path, voice_path=None):
     }
 
 
-def generate_shorts_batch(count=6, output_dir=None):
+def generate_shorts_batch(count=1, output_dir=None):
     if output_dir is None:
         output_dir = os.path.join(Config.OUTPUT_DIR, "shorts")
     os.makedirs(output_dir, exist_ok=True)
@@ -253,7 +231,7 @@ def generate_shorts_batch(count=6, output_dir=None):
 
 
 if __name__ == "__main__":
-    results = generate_shorts_batch(3)
+    results = generate_shorts_batch(1)
     for r in results:
         print(f"\nShort: {r['info']['title']}")
         print(f"  Duration: {r['info']['duration']}s")
