@@ -344,9 +344,10 @@ def download_football_images(count=8, title=""):
     ]
 
     sources = [
-        "https://source.unsplash.com/1920x1080/?{q}&sig={s}",
         "https://picsum.photos/1920/1080?random={s}",
         "https://loremflickr.com/1920/1080/{q}",
+        "https://api.unsplash.com/photos/random?query={q}&w=1920&h=1080&client_id=ZFF51Vh6Pd3-nzO4KF0mJmOq12tXJaxCwCAB16Ums2Q",
+        "https://i.imgur.com/1fYmZzR.jpg",
     ]
 
     scene_types = ["stadium", "action", "trophy", "fans", "goal", "night", "stadium", "action"]
