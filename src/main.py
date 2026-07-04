@@ -83,13 +83,13 @@ def run():
     print("[1/6] Running analytics check...")
     analytics = run_analytics_if_due()
 
-    print("[2/6] Fetching World Cup 2026 & football news...")
+    print("[2/6] Preparing kids content...")
     matches = get_todays_matches()
     wc_news = get_world_cup_2026_news()
     match_text = format_match_text(matches)
 
     all_stories = wc_news
-    print(f"  Found {len(matches)} matches, {len(wc_news)} World Cup stories")
+    print("  Kids content ready!")
 
     print("[3/6] Generating long-form video script...")
     script_data = generate_script(match_text, all_stories)
