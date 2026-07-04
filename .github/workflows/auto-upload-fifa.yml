@@ -1,0 +1,62 @@
+name: FIFA Football Auto Upload
+
+on:
+  schedule:
+    - cron: "0 6,18 * * *"
+  workflow_dispatch:
+
+jobs:
+  generate-and-upload:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Restore upload quota cache
+        uses: actions/cache@v4
+        with:
+          path: upload_quota.json
+          key: upload-quota-fifa-${{ github.run_id }}
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install FFmpeg & fonts
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg fonts-dejavu-core fonts-freefont-ttf
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Generate TV intro/outro assets
+        run: |
+          mkdir -p assets output
+          python -c "from src.tv_assets import create_tv_intro, create_tv_outro, create_watermark, create_logo; create_tv_intro('output/intro.mp4', 4); create_tv_outro('output/outro.mp4', 3); create_watermark('output/watermark.png'); create_logo('output/logo.png'); print('TV assets generated!')"
+
+      - name: Generate & Upload FIFA Video
+        env:
+          YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
+          YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
+          YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
+          YOUTUBE_REFRESH_TOKEN: ${{ secrets.FIFA_REFRESH_TOKEN }}
+          CHANNEL_NAME: ${{ secrets.FIFA_CHANNEL_NAME }}
+          UPLOAD_SCHEDULE_HOURS: ${{ secrets.UPLOAD_SCHEDULE_HOURS }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          CONTENT_TYPE: fifa
+        run: python -m src.main
+
+      - name: Save upload quota cache
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: upload_quota.json
+          key: upload-quota-fifa-${{ github.run_id }}
+
+      - name: Keep runner alive
+        run: echo "FIFA workflow completed at $(date)"
