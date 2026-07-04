@@ -7,19 +7,31 @@ from datetime import datetime
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
 from src.config import Config
-try:
-    from src.football_data import (
-        get_todays_matches,
-        get_world_cup_2026_news,
-        format_match_text,
-    )
-except Exception:
+from src.youtube_uploader import upload_video, upload_short
+
+CONTENT_TYPE = os.environ.get("CONTENT_TYPE", "kids")
+
+if CONTENT_TYPE == "fifa":
+    try:
+        from src.football_data import (
+            get_todays_matches,
+            get_world_cup_2026_news,
+            format_match_text,
+        )
+    except Exception:
+        get_todays_matches = lambda: []
+        get_world_cup_2026_news = lambda: []
+        format_match_text = lambda x: ""
+    from src.fifa_script_generator import generate_script
+    from src.video_generator import create_video, STYLES
+    from src.fifa_shorts import generate_viral_shorts
+else:
     get_todays_matches = lambda: []
     get_world_cup_2026_news = lambda: []
     format_match_text = lambda x: ""
-from src.script_generator import generate_script
-from src.video_generator import create_video, STYLES
-from src.youtube_uploader import upload_video, upload_short
+    from src.script_generator import generate_script
+    from src.video_generator import create_video, STYLES
+    from src.viral_shorts import generate_viral_shorts
 
 QUOTA_FILE = os.path.join(os.path.dirname(os.path.dirname(__file__)), "upload_quota.json")
 
@@ -127,7 +139,6 @@ def run():
 
     print("[6/6] Generating viral Shorts...")
     try:
-        from src.viral_shorts import generate_viral_shorts
         shorts_dir = os.path.join(Config.OUTPUT_DIR, "shorts")
         shorts = generate_viral_shorts(output_dir=shorts_dir)
 
