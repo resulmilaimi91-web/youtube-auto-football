@@ -36,45 +36,101 @@ def _download_picsum(path, seed):
     return False
 
 
-def _get_short_images(theme_idx):
+def _get_kids_images(theme_idx):
     seeds = [
-        ["football_stadium_1", "soccer_action_1", "worldcup_arena_1", "football_fans_1"],
-        ["stadium_night_1", "soccer_player_1", "worldcup_crowd_1", "football_goal_1"],
-        ["football_celebration_1", "soccer_kick_1", "stadium_aerial_1", "football_team_1"],
+        ["kids_space_1", "kids_animal_1", "kids_ocean_1", "kids_dinosaur_1"],
+        ["kids_rainbow_1", "kids_butterfly_1", "kids_planet_1", "kids_fruit_1"],
+        ["kids_sun_1", "kids_tree_1", "kids_fish_1", "kids_star_1"],
     ]
     seed_list = seeds[theme_idx % len(seeds)]
     images = []
     for seed in seed_list:
-        path = os.path.join(Config.OUTPUT_DIR, f"short_img_{seed}.jpg")
+        path = os.path.join(Config.OUTPUT_DIR, f"kids_img_{seed}.jpg")
         ok = _download_picsum(path, seed)
         if ok:
             img = Image.open(path).convert("RGB")
             img = img.resize((1080, 1920), Image.LANCZOS)
             images.append(img)
     if not images:
-        img = Image.new("RGB", (1080, 1920), (20, 40, 80))
+        img = Image.new("RGB", (1080, 1920), (100, 150, 255))
+        draw = ImageDraw.Draw(img)
+        for y in range(0, 1920, 5):
+            for x in range(0, 1080, 5):
+                c = random.randint(0, 2)
+                draw.point((x, y), fill=(random.randint(50,255), random.randint(50,255), random.randint(50,255)))
         images.append(img)
     return images
 
 
-VIRAL_SHORTS = [
+KIDS_FACTS = [
     {
-        "title": "World Cup 2026 Will BREAK The Internet! #shorts #worldcup2026 #viral",
-        "script": "World Cup 2026 will be the biggest event in human history. 48 teams. 16 cities. 104 matches. 39 days of non-stop football. 82 thousand fans in the final. 5 billion viewers worldwide. This is not just a tournament. This is a revolution. Are you ready for the greatest World Cup ever?",
-        "bg": [(255, 0, 0), (200, 0, 0)],
+        "title": "Did You Know? Octopus has 3 hearts! #shorts #kids #funfacts",
+        "script": "Did you know an octopus has three hearts? Two pump blood to the gills, one pumps it to the body. And when they swim, the heart that pumps to the body stops! That's why they prefer to crawl. Amazing, right?",
+        "bg": [(100, 150, 255), (50, 100, 200)],
         "text": (255, 255, 255),
         "accent": (255, 215, 0),
-        "hooks": ["STOP SCROLLING!", "THIS WILL BLOW YOUR MIND!", "YOU ARE NOT READY!"],
+        "hooks": ["WAIT, WHAT?!", "MIND-BLOWING!", "NO WAY!"],
+    },
+    {
+        "title": "Space Fact: Stars are GIANT! #shorts #kids #space",
+        "script": "Did you know the biggest star in the universe is called UY Scuti? It is so huge that if it were our sun, it would swallow everything up to the planet Saturn! Our sun is tiny compared to it!",
+        "bg": [(20, 20, 80), (50, 30, 120)],
+        "text": (255, 255, 255),
+        "accent": (255, 200, 50),
+        "hooks": ["STOP SCROLLING!", "THAT'S HUGE!", "INCREDIBLE!"],
+    },
+    {
+        "title": "Honey never spoils! #shorts #kids #nature",
+        "script": "Did you know honey never goes bad? Archaeologists found 3000-year-old honey in Egyptian tombs and it was still perfectly good to eat! Honey is the only food that lasts forever!",
+        "bg": [(200, 150, 50), (150, 100, 30)],
+        "text": (255, 255, 255),
+        "accent": (255, 215, 0),
+        "hooks": ["AMAZING!", "THAT'S OLD!", "WOW!"],
+    },
+    {
+        "title": "Bananas are berries, but strawberries aren't! #shorts #kids",
+        "script": "Did you know bananas are technically berries, but strawberries are NOT? A berry has seeds inside, not outside. So bananas qualify, but strawberries don't! Science is so weird!",
+        "bg": [(255, 200, 50), (200, 150, 30)],
+        "text": (255, 255, 255),
+        "accent": (255, 100, 100),
+        "hooks": ["WHAT?!", "THAT'S CRAZY!", "NO WAY!"],
+    },
+    {
+        "title": "Butterflies taste with their feet! #shorts #kids #animals",
+        "script": "Did you know butterflies taste food with their feet? They have taste sensors on their legs! When they land on a flower, they taste it immediately. Cool, right?",
+        "bg": [(150, 200, 255), (100, 150, 200)],
+        "text": (255, 255, 255),
+        "accent": (255, 100, 200),
+        "hooks": ["REALLY?!", "THAT'S WILD!", "AMAZING!"],
+    },
+    {
+        "title": "The Sun is 400 times bigger! #shorts #kids #science",
+        "script": "Did you know the Sun is 400 times bigger than the Moon? But it also is 400 times farther away. That's why they look the same size in the sky! Perfect cosmic coincidence!",
+        "bg": [(255, 150, 50), (200, 100, 30)],
+        "text": (255, 255, 255),
+        "accent": (255, 255, 100),
+        "hooks": ["COSMIC!", "WOW!", "INCREDIBLE!"],
+    },
+]
+
+KIDS_VIDEOS = [
+    {
+        "title": "Fun Facts for Smart Kids! #shorts #kids #learning",
+        "script": "Here are amazing facts every smart kid should know. Animals, space, science - learn something new every day! Subscribe for more fun facts!",
+        "bg": [(50, 200, 100), (30, 150, 70)],
+        "text": (255, 255, 255),
+        "accent": (255, 215, 0),
+        "hooks": ["FUN TIME!", "LEARN THIS!", "COOL FACTS!"],
     },
 ]
 
 
-def _create_viral_frame_with_image(W, H, theme, hook_text, bg_image, part=0):
+def _create_kids_frame(W, H, theme, hook_text, bg_image, part=0):
     img = bg_image.copy()
     img = img.resize((W, H), Image.LANCZOS)
 
     enhancer = ImageEnhance.Brightness(img)
-    img = enhancer.enhance(0.4)
+    img = enhancer.enhance(0.45)
 
     img = img.filter(ImageFilter.GaussianBlur(radius=3))
 
@@ -83,67 +139,52 @@ def _create_viral_frame_with_image(W, H, theme, hook_text, bg_image, part=0):
     overlay = Image.new("RGBA", (W, H), (0, 0, 0, 0))
     ov_draw = ImageDraw.Draw(overlay)
 
-    for i in range(3):
-        y_start = 150 + i * 220
-        ov_draw.rectangle([0, y_start, W, y_start + 180], fill=(0, 0, 0, 160))
+    ov_draw.rectangle([0, 100, W, 600], fill=(0, 0, 0, 160))
+    ov_draw.rectangle([0, H - 300, W, H - 100], fill=(0, 0, 0, 160))
 
     img = Image.alpha_composite(img.convert("RGBA"), overlay).convert("RGB")
     draw = ImageDraw.Draw(img)
 
-    font_hook = _get_font(90)
-    font_big = _get_font(72)
-    font_med = _get_font(48)
-    font_small = _get_font(36)
+    font_huge = _get_font(100)
+    font_hook = _get_font(70)
+    font_big = _get_font(50)
+    font_small = _get_font(30)
 
-    hook_y = 200
+    hook_y = 70
     bbox = draw.textbbox((0, 0), hook_text, font=font_hook)
     tw = bbox[2] - bbox[0]
     draw.text((W // 2 - tw // 2 + 3, hook_y + 3), hook_text, fill=(0, 0, 0), font=font_hook)
     draw.text((W // 2 - tw // 2, hook_y), hook_text, fill=theme["accent"], font=font_hook)
 
-    if part == 0:
-        cx, cy = W // 2, H // 2 + 100
-        draw.ellipse([cx - 120, cy - 120, cx + 120, cy + 120], fill=(0, 0, 0, 180) if img.mode == "RGBA" else (0, 0, 0))
-        draw.ellipse([cx - 115, cy - 115, cx + 115, cy + 115], outline=theme["accent"], width=4)
-        draw.polygon([(cx - 40, cy - 60), (cx - 40, cy + 60), (cx + 60, cy)], fill=theme["accent"])
+    cx, cy = W // 2, H // 2 + 50
+    draw.ellipse([cx - 130, cy - 130, cx + 130, cy + 130], fill=(0, 0, 0, 180))
+    draw.ellipse([cx - 125, cy - 125, cx + 125, cy + 125], outline=theme["accent"], width=5)
+    draw.polygon([(cx - 45, cy - 60), (cx - 45, cy + 60), (cx + 65, cy)], fill=theme["accent"])
 
-        draw.rectangle([60, H - 380, W - 60, H - 260], fill=(0, 0, 0))
-        draw.rectangle([60, H - 380, W - 60, H - 260], outline=theme["accent"], width=4)
-        bbox_sub = draw.textbbox((0, 0), "SUBSCRIBE NOW!", font=font_big)
-        tw_sub = bbox_sub[2] - bbox_sub[0]
-        draw.text((W // 2 - tw_sub // 2, H - 360), "SUBSCRIBE NOW!", fill=theme["accent"], font=font_big)
+    draw.rectangle([60, H - 250, W - 60, H - 140], fill=(255, 50, 50))
+    bbox_sub = draw.textbbox((0, 0), "SUBSCRIBE FOR KIDS!", font=font_big)
+    tw_sub = bbox_sub[2] - bbox_sub[0]
+    draw.text((W // 2 - tw_sub // 2, H - 235), "SUBSCRIBE FOR KIDS!", fill=(255, 255, 255), font=font_big)
 
-        stats = [("48", "TEAMS"), ("104", "MATCHES"), ("5B+", "VIEWERS")]
-        for i, (num, label) in enumerate(stats):
-            x = 180 + i * 270
-            y = H // 2 + 300
-            draw.rectangle([x - 80, y - 40, x + 80, y + 40], fill=(0, 0, 0))
-            draw.rectangle([x - 80, y - 40, x + 80, y + 40], outline=theme["accent"], width=2)
-            bbox_n = draw.textbbox((0, 0), num, font=font_med)
-            tw_n = bbox_n[2] - bbox_n[0]
-            draw.text((x - tw_n // 2, y - 30), num, fill=theme["accent"], font=font_med)
-            bbox_l = draw.textbbox((0, 0), label, font=font_small)
-            tw_l = bbox_l[2] - bbox_l[0]
-            draw.text((x - tw_l // 2, y + 10), label, fill=(255, 255, 255), font=font_small)
-
-    draw.rectangle([0, 0, W, 6], fill=theme["accent"])
-    draw.rectangle([0, H - 6, W, H], fill=theme["accent"])
+    draw.rectangle([0, 0, W, 8], fill=theme["accent"])
+    draw.rectangle([0, H - 8, W, H], fill=theme["accent"])
 
     return img
 
 
-def create_viral_short(theme_idx, output_path, voice_path=None):
-    theme = VIRAL_SHORTS[theme_idx % len(VIRAL_SHORTS)]
+def create_kids_short(theme_idx, output_path, voice_path=None):
+    from src.config import Config
+    theme = KIDS_FACTS[theme_idx % len(KIDS_FACTS)]
     W, H = 1080, 1920
     part_duration = 4
 
-    bg_images = _get_short_images(theme_idx)
+    bg_images = _get_kids_images(theme_idx)
 
     frames = []
     for part in range(2):
         hook = theme["hooks"][part % len(theme["hooks"])]
         bg_img = bg_images[part % len(bg_images)]
-        frame = _create_viral_frame_with_image(W, H, theme, hook, bg_img, part)
+        frame = _create_kids_frame(W, H, theme, hook, bg_img, part)
         frame_path = output_path.replace(".mp4", f"_part{part}.png")
         frame.save(frame_path, quality=95)
         frames.append(frame_path)
@@ -177,7 +218,7 @@ def create_viral_short(theme_idx, output_path, voice_path=None):
         "title": theme["title"],
         "script": theme["script"],
         "duration": part_duration * 2,
-        "hashtags": ["shorts", "football", "worldcup2026", "viral", "fifa"],
+        "hashtags": ["shorts", "kids", "funfacts", "learning", "education"],
     }
 
 
@@ -188,13 +229,13 @@ def generate_viral_shorts(output_dir=None):
 
     results = []
     for i in range(1):
-        output_path = os.path.join(output_dir, f"viral_short_{i+1}.mp4")
+        output_path = os.path.join(output_dir, f"kids_short_{i+1}.mp4")
         try:
-            path, info = create_viral_short(i, output_path)
+            path, info = create_kids_short(i, output_path)
             results.append({"path": path, "info": info})
-            print(f"  Viral Short {i+1}: {info['title'][:50]}...")
+            print(f"  Kids Short {i+1}: {info['title'][:50]}...")
         except Exception as e:
-            print(f"  Viral Short {i+1} failed: {e}")
+            print(f"  Kids Short {i+1} failed: {e}")
 
     return results
 
@@ -202,6 +243,6 @@ def generate_viral_shorts(output_dir=None):
 if __name__ == "__main__":
     results = generate_viral_shorts()
     for r in results:
-        print(f"\nViral Short: {r['info']['title']}")
+        print(f"\nKids Short: {r['info']['title']}")
         print(f"  Duration: {r['info']['duration']}s")
         print(f"  Path: {r['path']}")
