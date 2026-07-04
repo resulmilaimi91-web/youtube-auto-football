@@ -32,15 +32,17 @@ def get_trending_kids_topics():
 def get_trending_sports_topics():
     topics = [
         "Messi vs Ronaldo stats", "most goals in football history",
-        "fastest goal ever scored", "World Cup 2026 teams",
+        "fastest goal ever scored", "craziest football moments",
         "most expensive footballer transfer", "Mbappe speed record",
-        "most Champions League wins", "Brazil World Cup titles",
+        "most Champions League wins", "greatest football comebacks",
         "oldest footballer ever", "most red cards in football",
         "biggest stadium in world", "longest unbeaten streak football",
-        "most goals in single World Cup", "football record transfer window",
+        "most hat tricks in football", "football record transfer window",
         "most assists all time", "goalkeeper with most clean sheets",
         "most penalties scored", "ballon d'or winners list",
-        "most world cup appearances", "highest scoring football match",
+        "best football skills ever", "highest scoring football match",
+        "most dribbles in history", "incredible bicycle kicks",
+        "most free kick goals", "footballers who broke records",
     ]
     if TrendReq:
         try:
@@ -63,9 +65,10 @@ def get_trending_script_topic(content_type):
         ]
     else:
         topics = [
-            "World Cup 2026 guide", "biggest football rivalries",
-            "history of World Cup", "football player records",
+            "football records", "biggest football rivalries",
+            "skilful footballers", "football player records",
             "most expensive transfers", "legendary football moments",
+            "craziest football moments", "best football goals",
         ]
     return random.choice(topics)
 
