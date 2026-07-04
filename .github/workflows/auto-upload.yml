@@ -1,11 +1,9 @@
-name: YouTube Auto Football TV 24/7
+name: YouTube Auto Kids Channel
 
 on:
   schedule:
-    - cron: "0 */12 * * *"
+    - cron: "0 0,12 * * *"
   workflow_dispatch:
-  push:
-    branches: [main]
 
 jobs:
   generate-and-upload:
@@ -18,7 +16,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: upload_quota.json
-          key: upload-quota-clean-${{ github.run_id }}
+          key: upload-quota-kids-${{ github.run_id }}
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -34,23 +32,13 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Generate TV intro/outro assets
-        run: |
-          mkdir -p assets output
-          python -c "from src.tv_assets import create_tv_intro, create_tv_outro, create_watermark, create_logo; create_tv_intro('output/intro.mp4', 4); create_tv_outro('output/outro.mp4', 3); create_watermark('output/watermark.png'); create_logo('output/logo.png'); print('TV assets generated!')"
-
-      - name: Generate & Upload TV Video
+      - name: Generate & Upload Kids Content
         env:
-          YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
+          CONTENT_TYPE: kids
           YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
           YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
           YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
           CHANNEL_NAME: ${{ secrets.CHANNEL_NAME }}
-          UPLOAD_SCHEDULE_HOURS: ${{ secrets.UPLOAD_SCHEDULE_HOURS }}
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-          HF_TOKEN: ${{ secrets.HF_TOKEN }}
-          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
-          CONTENT_TYPE: kids
         run: python -m src.main
 
       - name: Save upload quota cache
@@ -58,7 +46,4 @@ jobs:
         uses: actions/cache/save@v4
         with:
           path: upload_quota.json
-          key: upload-quota-clean-${{ github.run_id }}
-
-      - name: Keep runner alive
-        run: echo "Workflow completed at $(date)"
+          key: upload-quota-kids-${{ github.run_id }}
