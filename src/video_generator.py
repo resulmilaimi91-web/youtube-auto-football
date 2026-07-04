@@ -96,6 +96,20 @@ def _download_image(url, path):
     return False
 
 
+def _download_picsum(path, seed):
+    try:
+        url = f"https://picsum.photos/seed/{seed}/1920/1080"
+        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+        data = urllib.request.urlopen(req, timeout=15).read()
+        if len(data) > 5000:
+            with open(path, "wb") as f:
+                f.write(data)
+            return True
+    except Exception:
+        pass
+    return False
+
+
 def _create_football_placeholder(output_path, scene_type="stadium"):
     W, H = 1920, 1080
     img = Image.new("RGB", (W, H))
@@ -344,10 +358,9 @@ def download_football_images(count=8, title=""):
     ]
 
     sources = [
-        "https://picsum.photos/1920/1080?random={s}",
-        "https://loremflickr.com/1920/1080/{q}",
-        "https://api.unsplash.com/photos/random?query={q}&w=1920&h=1080&client_id=ZFF51Vh6Pd3-nzO4KF0mJmOq12tXJaxCwCAB16Ums2Q",
-        "https://i.imgur.com/1fYmZzR.jpg",
+        "https://picsum.photos/seed/football{i}/1920/1080",
+        "https://picsum.photos/seed/soccer{i}/1920/1080",
+        "https://picsum.photos/seed/stadium{i}/1920/1080",
     ]
 
     scene_types = ["stadium", "action", "trophy", "fans", "goal", "night", "stadium", "action"]
@@ -358,9 +371,8 @@ def download_football_images(count=8, title=""):
 
         for src_idx, src in enumerate(sources):
             q = queries[i % len(queries)]
-            sig = random.randint(1, 999999)
-            url = src.format(q=q, s=sig)
-            ok = _download_image(url, path)
+            url = src.format(q=q, i=i)
+            ok = _download_picsum(path, f"football_{i}_{src_idx}")
             if ok:
                 fsize = os.path.getsize(path)
                 if fsize > 10000:
