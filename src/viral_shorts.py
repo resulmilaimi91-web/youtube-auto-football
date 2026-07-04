@@ -4,7 +4,7 @@ import urllib.request
 import io
 from PIL import Image, ImageDraw, ImageFont, ImageFilter, ImageEnhance
 from moviepy import (
-    ImageClip, AudioFileClip, concatenate_videoclips
+    ImageClip, AudioFileClip, concatenate_videoclips,
 )
 from moviepy.audio.fx import AudioFadeIn, AudioFadeOut
 from src.config import Config
@@ -50,8 +50,8 @@ def _get_short_images(theme_idx):
         [
             "https://images.unsplash.com/photo-1579952363873-27f3bade9f55?w=1080&h=1920&fit=crop",
             "https://images.unsplash.com/photo-1553778263-73a83bab9b0c?w=1080&h=1920&fit=crop",
-            "https://images.unsplash.com/photo-1560272564-c83b66b1ad12?w=1080&h=1920&fit=crop",
-            "https://images.unsplash.com/photo-1489944440615-453fc2b6a9a9?w=1080&h=1920&fit=crop",
+            "https://images.unsplash.com/photo-1560272564-c83b4b0c1c5d?w=1080&h=1920&fit=crop",
+            "https://images.unsplash.com/photo-1489944448-2925f8a0b3b5?w=1080&h=1920&fit=crop",
         ],
     ]
     urls = image_queries[theme_idx % len(image_queries)]
@@ -70,14 +70,6 @@ VIRAL_SHORTS = [
         "text": (255, 255, 255),
         "accent": (255, 215, 0),
         "hooks": ["STOP SCROLLING!", "THIS WILL BLOW YOUR MIND!", "YOU ARE NOT READY!"],
-    },
-    {
-        "title": "Football Players Are NOT Human! #shorts #football #insane #viral",
-        "script": "These football players are not human. The speed. The power. The technique. They defy physics. They break the laws of nature. They do things we thought were impossible. This is why football is the beautiful game. This is why we watch. This is why we love it.",
-        "bg": [(0, 0, 0), (30, 0, 60)],
-        "text": (255, 255, 255),
-        "accent": (0, 255, 0),
-        "hooks": ["WATCH THIS!", "THIS IS INSANE!", "NO WAY!"],
     },
 ]
 
@@ -138,26 +130,6 @@ def _create_viral_frame_with_image(W, H, theme, hook_text, bg_image, part=0):
             bbox_l = draw.textbbox((0, 0), label, font=font_small)
             tw_l = bbox_l[2] - bbox_l[0]
             draw.text((x - tw_l // 2, y + 10), label, fill=(255, 255, 255), font=font_small)
-
-    elif part == 1:
-        numbers = ["48", "104", "39", "82K"]
-        labels = ["TEAMS", "MATCHES", "DAYS", "FANS"]
-        for i, (num, label) in enumerate(zip(numbers, labels)):
-            x = 135 + i * 270
-            y_center = H // 2
-            draw.ellipse([x - 70, y_center - 70, x + 70, y_center + 70], fill=(0, 0, 0))
-            draw.ellipse([x - 65, y_center - 65, x + 65, y_center + 65], outline=theme["accent"], width=3)
-            bbox_n = draw.textbbox((0, 0), num, font=font_big)
-            tw_n = bbox_n[2] - bbox_n[0]
-            draw.text((x - tw_n // 2, y_center - 35), num, fill=theme["accent"], font=font_big)
-            bbox_l = draw.textbbox((0, 0), label, font=font_med)
-            tw_l = bbox_l[2] - bbox_l[0]
-            draw.text((x - tw_l // 2, y_center + 45), label, fill=theme["text"], font=font_med)
-
-        draw.rectangle([60, H - 300, W - 60, H - 200], fill=(255, 0, 0))
-        bbox_like = draw.textbbox((0, 0), "LIKE & SHARE!", font=font_big)
-        tw_like = bbox_like[2] - bbox_like[0]
-        draw.text((W // 2 - tw_like // 2, H - 285), "LIKE & SHARE!", fill=(255, 255, 255), font=font_big)
 
     draw.rectangle([0, 0, W, 6], fill=theme["accent"])
     draw.rectangle([0, H - 6, W, H], fill=theme["accent"])
@@ -220,7 +192,7 @@ def generate_viral_shorts(output_dir=None):
     os.makedirs(output_dir, exist_ok=True)
 
     results = []
-    for i in range(2):
+    for i in range(1):
         output_path = os.path.join(output_dir, f"viral_short_{i+1}.mp4")
         try:
             path, info = create_viral_short(i, output_path)
