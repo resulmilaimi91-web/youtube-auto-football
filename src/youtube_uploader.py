@@ -12,6 +12,7 @@ CONTENT_TYPE = os.environ.get("CONTENT_TYPE", "kids")
 IS_MADE_FOR_KIDS = CONTENT_TYPE == "kids"
 FIFA_CATEGORY = "17"
 KIDS_CATEGORY = "24"
+REFRESH_TOKEN = Config.FIFA_REFRESH_TOKEN if CONTENT_TYPE == "fifa" and Config.FIFA_REFRESH_TOKEN else Config.YOUTUBE_REFRESH_TOKEN
 
 SCOPES = ["https://www.googleapis.com/auth/youtube.upload", "https://www.googleapis.com/auth/youtube"]
 
@@ -39,10 +40,10 @@ def get_authenticated_service():
         creds.refresh(Request())
 
     if not creds or not creds.valid:
-        if Config.YOUTUBE_REFRESH_TOKEN:
+        if REFRESH_TOKEN:
             creds = Credentials(
                 token=None,
-                refresh_token=Config.YOUTUBE_REFRESH_TOKEN,
+                refresh_token=REFRESH_TOKEN,
                 token_uri="https://oauth2.googleapis.com/token",
                 client_id=Config.YOUTUBE_CLIENT_ID,
                 client_secret=Config.YOUTUBE_CLIENT_SECRET,

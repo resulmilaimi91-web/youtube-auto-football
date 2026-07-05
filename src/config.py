@@ -9,6 +9,7 @@ class Config:
     YOUTUBE_CLIENT_ID = os.getenv("YOUTUBE_CLIENT_ID", "")
     YOUTUBE_CLIENT_SECRET = os.getenv("YOUTUBE_CLIENT_SECRET", "")
     YOUTUBE_REFRESH_TOKEN = os.getenv("YOUTUBE_REFRESH_TOKEN", "")
+    FIFA_REFRESH_TOKEN = os.getenv("FIFA_REFRESH_TOKEN", "")
 
     CHANNEL_NAME = os.getenv("CHANNEL_NAME", "Football Highlights Daily")
     UPLOAD_SCHEDULE_HOURS = int(os.getenv("UPLOAD_SCHEDULE_HOURS") or "6")
