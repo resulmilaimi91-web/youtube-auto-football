@@ -2,8 +2,8 @@ import os
 import random
 import math
 from PIL import Image, ImageDraw, ImageFont
-from moviepy import ImageClip, AudioFileClip, concatenate_videoclips
-from moviepy.audio.fx import AudioFadeIn, AudioFadeOut
+from moviepy import ImageClip, AudioFileClip, concatenate_videoclips, CompositeAudioClip
+from moviepy.audio.fx import AudioFadeIn, AudioFadeOut, MultiplyVolume
 from src.config import Config
 from src.trends_fetcher import get_trending_kids_topics
 
@@ -160,12 +160,26 @@ def generate_viral_shorts(output_dir=None):
                     tts.save(voice_path)
                 except Exception as e2:
                     print(f"  gTTS failed: {e2}")
+            audio_clips = []
             if os.path.exists(voice_path) and os.path.getsize(voice_path) > 1000:
                 try:
-                    audio = AudioFileClip(voice_path)
-                    video = video.with_audio(audio)
+                    audio_clips.append(AudioFileClip(voice_path))
                 except Exception as e:
-                    print(f"  Audio attach failed: {e}")
+                    print(f"  Voice load failed: {e}")
+            try:
+                from src.music_generator import generate_kids_background
+                music_path = generate_kids_background(part_duration * 2)
+                if os.path.exists(music_path):
+                    bg_music = AudioFileClip(music_path).with_effects([MultiplyVolume(0.25)])
+                    audio_clips.append(bg_music)
+            except Exception as e:
+                print(f"  Music gen failed: {e}")
+            if audio_clips:
+                try:
+                    final_audio = CompositeAudioClip(audio_clips)
+                    video = video.with_audio(final_audio)
+                except Exception as e:
+                    print(f"  Audio mix failed: {e}")
             video.write_videofile(output_path, fps=24, codec="libx264", preset="fast", threads=4, logger=None)
             for fp in frames:
                 if os.path.exists(fp):

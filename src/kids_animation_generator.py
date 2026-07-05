@@ -2,7 +2,8 @@ import os
 import random
 import math
 from PIL import Image, ImageDraw, ImageFont
-from moviepy import ImageClip, AudioFileClip, concatenate_videoclips
+from moviepy import ImageClip, AudioFileClip, concatenate_videoclips, CompositeAudioClip
+from moviepy.audio.fx import MultiplyVolume
 from moviepy.video.fx import FadeIn, FadeOut
 
 
@@ -225,10 +226,25 @@ def create_kids_song_video(song_data, output_path, voice_path=None, W=1920, H=10
         clip = clip.with_effects([FadeIn(0.2), FadeOut(0.2)])
         clip_paths.append(clip)
     video = concatenate_videoclips(clip_paths, method="compose")
+    audio_clips = []
     if voice_path and os.path.exists(voice_path) and os.path.getsize(voice_path) > 1000:
         try:
-            audio = AudioFileClip(voice_path)
-            video = video.with_audio(audio)
+            audio_clips.append(AudioFileClip(voice_path))
+        except Exception:
+            pass
+    try:
+        from src.music_generator import generate_kids_background
+        music_path = generate_kids_background(total_duration)
+        if os.path.exists(music_path):
+            bg_music = AudioFileClip(music_path).with_effects([MultiplyVolume(0.3)])
+            audio_clips.append(bg_music)
+    except Exception:
+        pass
+    if audio_clips:
+        try:
+            from moviepy import CompositeAudioClip
+            final_audio = CompositeAudioClip(audio_clips)
+            video = video.with_audio(final_audio)
         except Exception:
             pass
     video.write_videofile(output_path, fps=24, codec="libx264", preset="fast", threads=4, logger=None)
