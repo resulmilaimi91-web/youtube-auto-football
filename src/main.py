@@ -130,6 +130,38 @@ def run():
         print("[2/5] Skipping video generation (upload quota)")
         print("[3/5] Skipping upload (quota)")
 
+    print("[4/5] Generating Shorts...")
+    if CONTENT_TYPE == "kids":
+        from src.viral_shorts import generate_viral_shorts
+        shorts_dir = os.path.join(Config.OUTPUT_DIR, "shorts")
+        try:
+            shorts = generate_viral_shorts(output_dir=shorts_dir)
+        except Exception as e:
+            print(f"  Kids shorts generation failed: {e}")
+            shorts = []
+    else:
+        shorts_dir = os.path.join(Config.OUTPUT_DIR, "shorts")
+        try:
+            shorts = generate_viral_shorts(output_dir=shorts_dir)
+        except Exception as e:
+            print(f"  FIFA shorts generation failed: {e}")
+            shorts = []
+
+    if can_upload:
+        from src.youtube_uploader import upload_short
+        for short in shorts:
+            short_url = upload_short(short["path"], short["info"])
+            if short_url == "QUOTA_EXCEEDED":
+                _record_upload_fail()
+                print("  [QUOTA] Upload limit hit during Shorts, stopping")
+                break
+            elif short_url:
+                print(f"  Short uploaded: {short_url}")
+            if os.path.exists(short["path"]):
+                os.remove(short["path"])
+    else:
+        print("  Skipping Shorts upload (quota)")
+
     return video_url
 
 
