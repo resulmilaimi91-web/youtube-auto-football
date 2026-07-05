@@ -58,7 +58,7 @@ def _generate_voiceover(script_text, output_path):
             voice = "en-US-JennyNeural"
 
         async def _run():
-            tts = edge_tts.Communicate(script_text, voice=voice, rate="+10%", pitch="+5%")
+            tts = edge_tts.Communicate(script_text, voice=voice, rate="+10%")
             await tts.save(output_path)
         asyncio.run(_run())
         if os.path.getsize(output_path) > 1000:

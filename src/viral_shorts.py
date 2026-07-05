@@ -148,7 +148,7 @@ def generate_viral_shorts(output_dir=None):
                 import asyncio
                 text = facts[i]["script"]
                 async def _run():
-                    tts = edge_tts.Communicate(text, voice="en-US-JennyNeural", rate="+15%", pitch="+10%")
+                    tts = edge_tts.Communicate(text, voice="en-US-JennyNeural", rate="+15%")
                     await tts.save(voice_path)
                 asyncio.run(_run())
                 if os.path.getsize(voice_path) > 1000:
