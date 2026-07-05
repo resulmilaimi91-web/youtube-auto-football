@@ -8,6 +8,11 @@ from googleapiclient.http import MediaFileUpload
 from googleapiclient.errors import HttpError
 from src.config import Config
 
+CONTENT_TYPE = os.environ.get("CONTENT_TYPE", "kids")
+IS_MADE_FOR_KIDS = CONTENT_TYPE == "kids"
+FIFA_CATEGORY = "17"
+KIDS_CATEGORY = "24"
+
 SCOPES = ["https://www.googleapis.com/auth/youtube.upload", "https://www.googleapis.com/auth/youtube"]
 
 def _make_client_config():
@@ -56,16 +61,18 @@ def get_authenticated_service():
 def upload_video(video_path, thumb_path, script_data):
     youtube = get_authenticated_service()
 
+    category = KIDS_CATEGORY if IS_MADE_FOR_KIDS else FIFA_CATEGORY
+
     body = {
         "snippet": {
             "title": script_data["title"],
             "description": script_data["description"],
             "tags": script_data["tags"],
-            "categoryId": "17",
+            "categoryId": category,
         },
         "status": {
             "privacyStatus": "public",
-            "selfDeclaredMadeForKids": False,
+            "selfDeclaredMadeForKids": IS_MADE_FOR_KIDS,
         },
     }
 
@@ -104,16 +111,18 @@ def upload_short(video_path, script_data):
     if "#shorts" not in title.lower():
         title += " #shorts"
 
+    category = KIDS_CATEGORY if IS_MADE_FOR_KIDS else FIFA_CATEGORY
+
     body = {
         "snippet": {
             "title": title,
             "description": script_data.get("script", "") + "\n\n#shorts #football #worldcup2026 #soccer #fifa",
             "tags": script_data.get("hashtags", ["shorts", "football", "worldcup2026"]),
-            "categoryId": "17",
+            "categoryId": category,
         },
         "status": {
             "privacyStatus": "public",
-            "selfDeclaredMadeForKids": False,
+            "selfDeclaredMadeForKids": IS_MADE_FOR_KIDS,
         },
     }
 

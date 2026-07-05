@@ -76,7 +76,7 @@ def generate_script(match_text=None, all_stories=None):
     return {
         "title": template["title"],
         "script": script,
-        "description": f"Amazing football highlights, records, and moments. Today's topic: {topic}\n\n#Football #Soccer #Highlights #Viral #Sports",
-        "tags": ["Football", "Soccer", "Highlights", "Viral", "Sports", "Records", "Skills"],
+        "description": f"Amazing football highlights, records, and moments. Today's topic: {topic}\n\nAll footage and images are generated or stock. This content is for educational and entertainment purposes only. All statistics and information are based on publicly available data.\n\n#Football #Soccer #Highlights #Sports #FootballHistory",
+        "tags": ["Football", "Soccer", "Highlights", "Sports", "FootballHistory", "Records", "Skills"],
         "category": "17",
     }
