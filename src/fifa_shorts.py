@@ -108,19 +108,29 @@ def generate_viral_shorts(output_dir=None):
                 clips.append(clip)
             video = concatenate_videoclips(clips, method="compose")
             voice_path = os.path.join(output_dir, f"short_{i+1}_voice.mp3")
+            text = facts[i]["script"]
             try:
                 import edge_tts
                 import asyncio
-                text = facts[i]["script"]
                 async def _run():
-                    tts = edge_tts.Communicate(text, voice="en-US-GuyNeural", rate="-5%", pitch="0Hz")
+                    tts = edge_tts.Communicate(text, voice="en-US-GuyNeural", rate="-5%")
                     await tts.save(voice_path)
                 asyncio.run(_run())
-                if os.path.getsize(voice_path) > 1000:
+            except Exception as e:
+                print(f"  edge-tts failed: {e}")
+            if not os.path.exists(voice_path) or os.path.getsize(voice_path) < 1000:
+                try:
+                    from gtts import gTTS
+                    tts = gTTS(text=text, lang="en", slow=False, tld="com")
+                    tts.save(voice_path)
+                except Exception as e2:
+                    print(f"  gTTS failed: {e2}")
+            if os.path.exists(voice_path) and os.path.getsize(voice_path) > 1000:
+                try:
                     audio = AudioFileClip(voice_path)
                     video = video.with_audio(audio)
-            except Exception:
-                pass
+                except Exception as e:
+                    print(f"  Audio attach failed: {e}")
             video.write_videofile(output_path, fps=24, codec="libx264", preset="fast", threads=4, logger=None)
             for fp in frames:
                 if os.path.exists(fp):
