@@ -1,79 +1,42 @@
-# Football Highlights Daily - TV Channel on YouTube
+# 🚀 Automated YouTube Content Factory
 
-Professional automated TV channel covering FIFA World Cup 2026 and global football.
+Ky projekt është një sistem i automatizuar për menaxhimin e dy kanaleve YouTube (Kids & Sports). Qëllimi është maksimizimi i shikueshmërisë përmes analizës së trendeve dhe krijimit të përmbajtjes unike.
 
-## What This Does
+## 📊 Kanale
 
-- Generates **TV-quality videos** (1920x1080 desktop format)
-- Fetches **World Cup 2026 news** from BBC Sport, ESPN, Sky Sports, Goal.com
-- Creates **professional intros/outros** like a TV broadcast
-- Adds **watermarks, news tickers, animated overlays**
-- Uploads to YouTube **every 6 hours** automatically
-- Uses **natural voice** (Microsoft Edge TTS + Google TTS fallback)
+| Kanali | Stili | Përmbajtja | Frekuenca |
+|--------|-------|------------|-----------|
+| **Kids (Aura & Luna)** | Animacione Cortana + fëmijë | Këngë origjinale, fakte edukative, pa muzikë | Çdo 6 orë |
+| **Sports (FIFA)** | News TV-style, tekst-only | Rekorde, statistika, lajme virale pa foto lojtaresh | Çdo 6 orë |
 
-## Features
+## 🛠 Workflow Strategy
+- **Trend Detection:** Monitorim i Google Trends për Kids dhe Football Highlights.
+- **Production Pipeline:** 1 Long-form video + 2 Shorts për çdo trend.
+- **Anti-Ban Protocol:** Random delays (1-15 min), metadata unike, `MadeForKids` flag i saktë.
+- **Policy Compliance:** Përdorim i efekteve unike, voiceovers (edge-tts) dhe editimit transformues për të respektuar rregullat e YouTube.
 
-- 7 video styles: Breaking, Sports, World Cup, Analysis, News, Premium, Classic
-- Professional thumbnail with gradient, logo, and overlays
-- Intro/outro sequence like a TV channel
-- Animated news ticker at bottom
-- Watermark/logo in corner
-- Title with shadow effect for depth
-- Fade transitions between scenes
-- Downloaded football images from Unsplash
+## 🛡 Security Protocol
+- **Çelësat API** janë të mbrojtur përmes **GitHub Secrets**.
+- **Refresh Token** i veçantë për çdo kanal (`YOUTUBE_REFRESH_TOKEN` për Kids, `FIFA_REFRESH_TOKEN` për FIFA).
+- Asnjëherë nuk publikohen çelësa në kod.
 
-## Setup for Monetization
-
-### Requirements for YouTube Partner Program:
-- **1,000 subscribers**
-- **4,000 watch hours** in the past 12 months
-- Content that follows YouTube policies
-
-### How to reach monetization fast:
-1. **Post consistently** - 4 videos per day (every 6 hours)
-2. **Optimize titles** - Use trending keywords (World Cup 2026, FIFA, football)
-3. **Engaging thumbnails** - Our TV-style thumbnails stand out
-4. **Longer videos** - 3-5 minutes for more watch time
-5. **SEO descriptions** - Our descriptions include relevant hashtags
-6. **Call to action** - Every video asks viewers to subscribe
-7. **Cross-promote** - Share on social media, football forums
-
-## Hashtag Strategy
-
-Each video uses 12-15 hashtags optimized for discoverability:
-- Primary: #worldcup2026 #fifa #football #soccer
-- League: #premierleague #laliga #seriea #bundesliga
-- Event: #championsleague #worldcuphighlights
-- Trending: #footballnews #highlights #sports
-
-## Video Styles
-
-1. **Breaking** - Red banner, urgent news style
-2. **Sports** - Gold accent, action-oriented
-3. **World Cup** - Blue/gold FIFA colors
-4. **Analysis** - Dark, tactical breakdown
-5. **News** - TV news broadcast style
-6. **Premium** - Gold borders, high-end feel
-7. **Classic** - Clean, professional look
-
-## Project Structure
+## 📁 Project Structure
 
 ```
 youtube-auto-football/
-├── .github/workflows/    # GitHub Actions (every 6 hours)
+├── .github/workflows/       # GitHub Actions (auto-upload.yml, auto-upload-fifa.yml)
 ├── src/
-│   ├── config.py         # Configuration
-│   ├── football_data.py  # Fetches news from portals
-│   ├── script_generator.py # 7 TV-style templates
-│   ├── video_generator.py  # Professional video creation
-│   ├── tv_assets.py      # Intro/outro/watermark/logo
-│   ├── youtube_uploader.py # YouTube API upload
-│   └── main.py           # Main pipeline
-├── assets/               # Background music, videos
+│   ├── main.py              # Pipeline kryesore
+│   ├── config.py            # Lexon environment variables
+│   ├── kids_song_generator.py    # 7 këngë origjinale për fëmijë
+│   ├── kids_animation_generator.py # Animacione Cortana + fëmijë
+│   ├── viral_shorts.py      # Kids shorts me Cortana
+│   ├── fifa_script_generator.py  # Template lajmesh futbolli
+│   ├── video_generator.py   # Text-only news-style video
+│   ├── fifa_shorts.py       # FIFA shorts text-only
+│   ├── trends_fetcher.py    # Google Trends integration
+│   ├── youtube_uploader.py  # YouTube API upload
+│   └── config.py            # Configuration
 ├── requirements.txt
 └── README.md
 ```
-
-## License
-
-MIT
