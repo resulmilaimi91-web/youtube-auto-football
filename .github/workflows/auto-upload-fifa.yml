@@ -38,8 +38,8 @@ jobs:
           CONTENT_TYPE: fifa
           YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
           YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
-          YOUTUBE_REFRESH_TOKEN: ${{ secrets.FIFA_REFRESH_TOKEN }}
-          CHANNEL_NAME: ${{ secrets.FIFA_CHANNEL_NAME }}
+          YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
+          CHANNEL_NAME: ${{ secrets.CHANNEL_NAME }}
         run: python -m src.main
 
       - name: Save upload quota cache
