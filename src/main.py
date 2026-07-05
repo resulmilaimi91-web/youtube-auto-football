@@ -2,6 +2,7 @@ import os
 import sys
 import random
 import json
+import time
 from datetime import datetime
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
@@ -12,11 +13,11 @@ CONTENT_TYPE = os.environ.get("CONTENT_TYPE", "kids")
 if CONTENT_TYPE == "fifa":
     from src.fifa_script_generator import generate_script
     from src.video_generator import create_video, STYLES
-    from src.fifa_shorts import generate_viral_shorts
+    from src.fifa_shorts import generate_viral_shorts as generate_shorts
 else:
     from src.kids_song_generator import generate_song
     from src.kids_animation_generator import create_kids_song_video
-    from src.fifa_shorts import generate_viral_shorts
+    from src.viral_shorts import generate_viral_shorts as generate_shorts
 
 QUOTA_FILE = os.path.join(os.path.dirname(os.path.dirname(__file__)), "upload_quota.json")
 
@@ -114,6 +115,9 @@ def run():
         print(f"  Video: {video_path}")
 
         print("[3/5] Uploading to YouTube...")
+        delay = random.randint(60, 300)
+        print(f"  Anti-ban delay {delay}s before upload...")
+        time.sleep(delay)
         from src.youtube_uploader import upload_video
         video_url = upload_video(video_path, thumb_path, script_data)
         print(f"  Uploaded: {video_url}")
@@ -131,25 +135,23 @@ def run():
         print("[3/5] Skipping upload (quota)")
 
     print("[4/5] Generating Shorts...")
-    if CONTENT_TYPE == "kids":
-        from src.viral_shorts import generate_viral_shorts
-        shorts_dir = os.path.join(Config.OUTPUT_DIR, "shorts")
-        try:
-            shorts = generate_viral_shorts(output_dir=shorts_dir)
-        except Exception as e:
-            print(f"  Kids shorts generation failed: {e}")
-            shorts = []
-    else:
-        shorts_dir = os.path.join(Config.OUTPUT_DIR, "shorts")
-        try:
-            shorts = generate_viral_shorts(output_dir=shorts_dir)
-        except Exception as e:
-            print(f"  FIFA shorts generation failed: {e}")
-            shorts = []
+    delay = random.randint(300, 900)
+    print(f"  Anti-ban delay {delay}s before shorts (mimicking editing)...")
+    time.sleep(delay)
+    shorts_dir = os.path.join(Config.OUTPUT_DIR, "shorts")
+    try:
+        shorts = generate_shorts(output_dir=shorts_dir)
+    except Exception as e:
+        print(f"  Shorts generation failed: {e}")
+        shorts = []
 
-    if can_upload:
+    if can_upload and shorts:
         from src.youtube_uploader import upload_short
-        for short in shorts:
+        for i, short in enumerate(shorts):
+            delay = random.randint(180, 600)
+            print(f"  Anti-ban delay {delay}s before short {i+1}...")
+            time.sleep(delay)
+
             short_url = upload_short(short["path"], short["info"])
             if short_url == "QUOTA_EXCEEDED":
                 _record_upload_fail()
@@ -160,7 +162,7 @@ def run():
             if os.path.exists(short["path"]):
                 os.remove(short["path"])
     else:
-        print("  Skipping Shorts upload (quota)")
+        print("  Skipping Shorts upload (quota or none generated)")
 
     return video_url
 

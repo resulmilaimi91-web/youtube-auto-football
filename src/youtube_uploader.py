@@ -107,17 +107,26 @@ def upload_video(video_path, thumb_path, script_data):
 def upload_short(video_path, script_data):
     youtube = get_authenticated_service()
 
-    title = script_data.get("title", "Football Shorts #shorts")
+    title = script_data.get("title", "Shorts #shorts")
     if "#shorts" not in title.lower():
         title += " #shorts"
 
     category = KIDS_CATEGORY if IS_MADE_FOR_KIDS else FIFA_CATEGORY
 
+    default_tags = ["shorts"]
+    default_desc_suffix = "\n\n#shorts"
+    if IS_MADE_FOR_KIDS:
+        default_tags = ["shorts", "kids", "learning", "fun", "education"]
+        default_desc_suffix = "\n\n#shorts #kids #learning #fun #education"
+    else:
+        default_tags = ["shorts", "football", "soccer", "goals", "sports"]
+        default_desc_suffix = "\n\n#shorts #football #soccer #goals #sports"
+
     body = {
         "snippet": {
             "title": title,
-            "description": script_data.get("script", "") + "\n\n#shorts #football #worldcup2026 #soccer #fifa",
-            "tags": script_data.get("hashtags", ["shorts", "football", "worldcup2026"]),
+            "description": script_data.get("script", "") + default_desc_suffix,
+            "tags": script_data.get("hashtags", default_tags),
             "categoryId": category,
         },
         "status": {
