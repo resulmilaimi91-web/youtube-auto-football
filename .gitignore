@@ -2,7 +2,7 @@ output/
 __pycache__/
 *.pyc
 .env
-token.pickle
+*.pickle
 *.mp4
 *.mp3
 *.jpg
