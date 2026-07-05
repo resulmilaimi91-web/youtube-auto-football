@@ -1,4 +1,21 @@
 import random
+import json
+import os
+
+STRATEGY_FILE = os.path.join(os.path.dirname(os.path.dirname(__file__)), "content_strategy.json")
+
+
+def _get_preferred_theme():
+    try:
+        if os.path.exists(STRATEGY_FILE):
+            with open(STRATEGY_FILE) as f:
+                strategy = json.load(f)
+            themes = strategy.get("recommended_themes", [])
+            if themes:
+                return themes[0]
+    except Exception:
+        pass
+    return None
 
 
 SONG_TEMPLATES = [
@@ -188,7 +205,15 @@ SONG_TEMPLATES = [
 
 
 def generate_song():
-    template = random.choice(SONG_TEMPLATES)
+    preferred = _get_preferred_theme()
+    if preferred:
+        matching = [t for t in SONG_TEMPLATES if t["theme"] == preferred]
+        if matching:
+            template = matching[0]
+        else:
+            template = random.choice(SONG_TEMPLATES)
+    else:
+        template = random.choice(SONG_TEMPLATES)
 
     title = template["title"]
 
