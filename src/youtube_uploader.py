@@ -97,12 +97,12 @@ def upload_video(video_path, thumb_path, script_data):
             except HttpError as thumb_err:
                 print(f"Thumbnail upload skipped (not allowed for this account): {thumb_err}")
 
-        return f"https://youtube.com/watch?v={video_id}"
+        return f"https://youtube.com/watch?v={video_id}", video_id
     except HttpError as e:
         print(f"YouTube upload error (continuing): {e}")
         if "uploadLimitExceeded" in str(e):
-            return "QUOTA_EXCEEDED"
-        return None
+            return "QUOTA_EXCEEDED", None
+        return None, None
 
 
 def upload_short(video_path, script_data):
@@ -146,9 +146,9 @@ def upload_short(video_path, script_data):
         )
         response = request.execute()
         video_id = response["id"]
-        return f"https://youtube.com/shorts/{video_id}"
+        return f"https://youtube.com/shorts/{video_id}", video_id
     except HttpError as e:
         print(f"Short upload error (continuing): {e}")
         if "uploadLimitExceeded" in str(e):
-            return "QUOTA_EXCEEDED"
-        return None
+            return "QUOTA_EXCEEDED", None
+        return None, None

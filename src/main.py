@@ -123,13 +123,22 @@ def run():
         print(f"  Anti-ban delay {delay}s before upload...")
         time.sleep(delay)
         from src.youtube_uploader import upload_video
-        video_url = upload_video(video_path, thumb_path, script_data)
+        video_url, video_id = upload_video(video_path, thumb_path, script_data)
         print(f"  Uploaded: {video_url}")
 
         if video_url == "QUOTA_EXCEEDED":
             _record_upload_fail()
             print("  [QUOTA] Upload limit recorded, will skip uploads for 12h")
             video_url = None
+            video_id = None
+        elif video_id and CONTENT_TYPE == "kids":
+            try:
+                from src.playlist_manager import add_video_to_all_playlists
+                theme = script_data.get("theme", "")
+                if theme and add_video_to_all_playlists(video_id, theme):
+                    print(f"  Added to playlist: {theme}")
+            except Exception:
+                pass
 
         for p in [video_path, thumb_path, voice_path]:
             if os.path.exists(p):
@@ -156,7 +165,7 @@ def run():
             print(f"  Anti-ban delay {delay}s before short {i+1}...")
             time.sleep(delay)
 
-            short_url = upload_short(short["path"], short["info"])
+            short_url, short_id = upload_short(short["path"], short["info"])
             if short_url == "QUOTA_EXCEEDED":
                 _record_upload_fail()
                 print("  [QUOTA] Upload limit hit during Shorts, stopping")

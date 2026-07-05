@@ -195,7 +195,7 @@ def _draw_star_shape(draw, cx, cy, size, fill):
     draw.polygon(points, fill=fill)
 
 
-def create_kids_song_video(song_data, output_path, voice_path=None, W=1920, H=1080):
+def create_kids_song_video(song_data, output_path, voice_path=None, W=1920, H=1080, add_subscribe=True):
     lyrics = song_data["lyrics"]
     theme = song_data.get("theme", "rainbow")
     total_duration = 60
@@ -247,21 +247,44 @@ def create_kids_song_video(song_data, output_path, voice_path=None, W=1920, H=10
             video = video.with_audio(final_audio)
         except Exception:
             pass
+
+    if add_subscribe:
+        try:
+            from src.subscribe_animation import create_subscribe_clip, cleanup_subscribe
+            sub_clip, sub_path = create_subscribe_clip(duration=3.0, output_size=(W, H))
+            video = concatenate_videoclips([video, sub_clip], method="compose")
+        except Exception:
+            pass
+
     video.write_videofile(output_path, fps=24, codec="libx264", preset="fast", threads=4, logger=None)
+
     for gi in range(len(line_groups)):
         for f in range(frames_per_group if 'frames_per_group' in dir() else 0):
             p = output_path.replace(".mp4", f"_g{gi}_f{f}.png")
             if os.path.exists(p):
                 os.remove(p)
+
+    if add_subscribe:
+        try:
+            cleanup_subscribe(sub_path)
+        except Exception:
+            pass
+
     thumb_path = output_path.replace(".mp4", "_thumb.jpg")
-    thumb = _create_lyrics_frame(line_groups[0] if line_groups else ["Kids Song"], 0, 1, theme, 0, W, H)
-    thumb = thumb.resize((1280, 720), Image.LANCZOS)
-    draw = ImageDraw.Draw(thumb)
-    title = song_data.get("title", "Kids Song")
-    font_large = _get_font(50)
-    bbox = draw.textbbox((0, 0), title, font=font_large)
-    tw = bbox[2] - bbox[0]
-    draw.rectangle([(1280 - tw) // 2 - 20, 300, (1280 + tw) // 2 + 20, 370], fill=(0, 0, 0, 200))
-    draw.text(((1280 - tw) // 2, 310), title, fill=(255, 255, 255), font=font_large)
-    thumb.save(thumb_path, quality=90)
+    try:
+        from src.thumbnail_generator import generate_thumbnail
+        title = song_data.get("title", "Kids Song")
+        theme = song_data.get("theme", "rainbow")
+        generate_thumbnail(title, theme, thumb_path)
+    except Exception:
+        thumb = _create_lyrics_frame(line_groups[0] if line_groups else ["Kids Song"], 0, 1, theme, 0, W, H)
+        thumb = thumb.resize((1280, 720), Image.LANCZOS)
+        draw = ImageDraw.Draw(thumb)
+        title = song_data.get("title", "Kids Song")
+        font_large = _get_font(50)
+        bbox = draw.textbbox((0, 0), title, font=font_large)
+        tw = bbox[2] - bbox[0]
+        draw.rectangle([(1280 - tw) // 2 - 20, 300, (1280 + tw) // 2 + 20, 370], fill=(0, 0, 0, 200))
+        draw.text(((1280 - tw) // 2, 310), title, fill=(255, 255, 255), font=font_large)
+        thumb.save(thumb_path, quality=90)
     return output_path, thumb_path
