@@ -29,6 +29,7 @@ def get_youtube_stats():
     try:
         from googleapiclient.discovery import build
         from google.oauth2.credentials import Credentials
+        from google.auth.transport.requests import Request
 
         creds = Credentials(
             token=None,
@@ -36,9 +37,8 @@ def get_youtube_stats():
             token_uri="https://oauth2.googleapis.com/token",
             client_id=Config.YOUTUBE_CLIENT_ID,
             client_secret=Config.YOUTUBE_CLIENT_SECRET,
-            scopes=["https://www.googleapis.com/auth/youtube.readonly"],
+            scopes=["https://www.googleapis.com/auth/youtube"],
         )
-        from google.auth.transport.requests import Request
         creds.refresh(Request())
 
         youtube = build("youtube", "v3", credentials=creds)
@@ -75,7 +75,7 @@ def get_shorts_stats():
             token_uri="https://oauth2.googleapis.com/token",
             client_id=Config.YOUTUBE_CLIENT_ID,
             client_secret=Config.YOUTUBE_CLIENT_SECRET,
-            scopes=["https://www.googleapis.com/auth/youtube.readonly"],
+            scopes=["https://www.googleapis.com/auth/youtube"],
         )
         creds.refresh(Request())
 
