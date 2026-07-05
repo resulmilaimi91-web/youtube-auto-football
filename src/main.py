@@ -11,6 +11,10 @@ from src.config import Config
 CONTENT_TYPE = os.environ.get("CONTENT_TYPE", "kids")
 
 if CONTENT_TYPE == "fifa":
+    if not Config.FIFA_REFRESH_TOKEN:
+        print("FIFA_REFRESH_TOKEN not set. Skipping FIFA channel.")
+        print("Run 'python src/get_fifa_token.py' on your PC to generate it.")
+        sys.exit(0)
     from src.fifa_script_generator import generate_script
     from src.video_generator import create_video, STYLES
     from src.fifa_shorts import generate_viral_shorts as generate_shorts
